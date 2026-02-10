@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InfoSec & IntProg Challenge</title>
+    <title>InfoSec & IntProg Challenge - Enhanced</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -121,6 +121,13 @@
             0%, 100% { transform: translateY(0) translateX(0); }
             50% { transform: translateY(-100px) translateX(100px); }
         }
+
+        .review-item {
+            transition: all 0.3s ease;
+        }
+        .review-item:hover {
+            transform: translateX(5px);
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white min-h-screen relative overflow-x-hidden">
@@ -150,7 +157,7 @@
             <div class="h-1 w-32 mx-auto bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mb-6"></div>
             
             <p class="mb-10 text-slate-300 text-xl font-light">
-                Test your knowledge and become a certified expert
+                Test your knowledge with 40 challenging questions
             </p>
             
             <div class="glass rounded-3xl p-8 max-w-md mx-auto shadow-2xl">
@@ -177,7 +184,7 @@
                     Choose Your Path, 
                     <span id="display-name" class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400"></span>
                 </h2>
-                <p class="text-slate-400 text-lg">Select a category to begin your journey</p>
+                <p class="text-slate-400 text-lg">Select a category to begin your 40-question challenge</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -194,7 +201,7 @@
                             Information Security
                         </h3>
                         <p class="text-slate-400 mb-6 leading-relaxed">
-                            Master the CIA Triad, Threats, Risk Management, and Security Fundamentals
+                            40 questions on CIA Triad, Threats, Risk Management, and Security Fundamentals
                         </p>
                         <div class="flex items-center text-cyan-400 font-semibold">
                             <span>Begin Journey</span>
@@ -218,7 +225,7 @@
                             Integrative Programming
                         </h3>
                         <p class="text-slate-400 mb-6 leading-relaxed">
-                            Challenge yourself on OOP, Inheritance, Polymorphism, and Java Concepts
+                            40 questions on OOP, Inheritance, Polymorphism, and Java Concepts
                         </p>
                         <div class="flex items-center text-emerald-400 font-semibold">
                             <span>Begin Journey</span>
@@ -334,18 +341,71 @@
                     </div>
                 </div>
                 
+                <div class="flex gap-4 justify-center">
+                    <button 
+                        onclick="showReviewCenter()" 
+                        class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
+                    >
+                        📚 Review Answers
+                    </button>
+                    <button 
+                        onclick="location.reload()" 
+                        class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
+                    >
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Center -->
+        <div id="review-screen" class="hidden mt-10 fade-in">
+            <div class="text-center mb-8">
+                <h2 class="text-5xl font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
+                    📚 Review Center
+                </h2>
+                <p class="text-slate-400 text-lg">Review all questions and their correct answers</p>
+            </div>
+
+            <div class="mb-6 flex justify-center gap-4">
                 <button 
-                    onclick="location.reload()" 
+                    onclick="filterReview('all')" 
+                    id="filter-all"
+                    class="px-6 py-3 rounded-xl glass border-2 border-purple-500 font-semibold transition-all"
+                >
+                    All Questions
+                </button>
+                <button 
+                    onclick="filterReview('correct')" 
+                    id="filter-correct"
+                    class="px-6 py-3 rounded-xl glass border-2 border-transparent hover:border-emerald-500 font-semibold transition-all"
+                >
+                    ✅ Correct
+                </button>
+                <button 
+                    onclick="filterReview('wrong')" 
+                    id="filter-wrong"
+                    class="px-6 py-3 rounded-xl glass border-2 border-transparent hover:border-red-500 font-semibold transition-all"
+                >
+                    ❌ Wrong
+                </button>
+            </div>
+
+            <div id="review-container" class="space-y-6 mb-8"></div>
+
+            <div class="text-center">
+                <button 
+                    onclick="backToResults()" 
                     class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
                 >
-                    Play Again
+                    ← Back to Results
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        const quizData = {
+        const quizDataBank = {
             infosec: [
                 { 
                     q: "Which property ensures information is shared only with authorized persons?", 
@@ -455,6 +515,337 @@
                         "Forces of nature are environmental threats like floods.",
                         "Acts of human error include accidental deletions, misconfigurations, or clicking malicious links without malicious intent.",
                         "Deliberate acts are intentional, while accidental deletion is unintentional."
+                    ]
+                },
+                // Additional 30 InfoSec questions
+                {
+                    q: "What does authentication verify?",
+                    a: ["What you know", "Who you are", "What you can do", "Where you are"],
+                    c: 1,
+                    exp: [
+                        "This relates to credentials like passwords.",
+                        "Authentication verifies the identity of a user - confirming who you are through credentials, biometrics, or tokens.",
+                        "This relates to authorization (permissions).",
+                        "This relates to location-based access control."
+                    ]
+                },
+                {
+                    q: "Which is NOT a type of malware?",
+                    a: ["Trojan", "Worm", "Firewall", "Ransomware"],
+                    c: 2,
+                    exp: [
+                        "Trojans are malicious programs disguised as legitimate software.",
+                        "Worms are self-replicating malware that spread across networks.",
+                        "A firewall is a security device that monitors and controls network traffic - it's a defense tool, not malware.",
+                        "Ransomware encrypts data and demands payment for decryption."
+                    ]
+                },
+                {
+                    q: "Encryption protects which CIA element?",
+                    a: ["Confidentiality", "Integrity", "Availability", "All of the above"],
+                    c: 0,
+                    exp: [
+                        "Encryption primarily protects confidentiality by making data unreadable to unauthorized parties, though it can also support integrity through digital signatures.",
+                        "While digital signatures (a form of encryption) help with integrity, encryption's primary role is confidentiality.",
+                        "Encryption doesn't directly ensure availability.",
+                        "Encryption primarily protects confidentiality."
+                    ]
+                },
+                {
+                    q: "What is social engineering?",
+                    a: ["Network hacking", "Manipulating people to divulge information", "Hardware theft", "Software vulnerability"],
+                    c: 1,
+                    exp: [
+                        "Network hacking is technical, not psychological manipulation.",
+                        "Social engineering exploits human psychology to trick people into revealing sensitive information or performing actions that compromise security.",
+                        "Hardware theft is physical, not psychological.",
+                        "Software vulnerabilities are technical flaws."
+                    ]
+                },
+                {
+                    q: "Multi-factor authentication combines:",
+                    a: ["Two passwords", "Multiple security types", "Several firewalls", "Many antivirus programs"],
+                    c: 1,
+                    exp: [
+                        "Using two passwords doesn't provide multiple factors.",
+                        "MFA combines different types of authentication factors: something you know (password), something you have (token), and something you are (biometric).",
+                        "Firewalls are network security, not authentication factors.",
+                        "Antivirus is malware protection, not authentication."
+                    ]
+                },
+                {
+                    q: "What does a firewall primarily do?",
+                    a: ["Detect viruses", "Filter network traffic", "Encrypt data", "Backup files"],
+                    c: 1,
+                    exp: [
+                        "Antivirus software detects viruses, not firewalls.",
+                        "Firewalls monitor and control incoming and outgoing network traffic based on predetermined security rules, acting as a barrier between trusted and untrusted networks.",
+                        "Encryption tools encrypt data, not firewalls.",
+                        "Backup software handles file backups."
+                    ]
+                },
+                {
+                    q: "Phishing attacks primarily target:",
+                    a: ["Hardware", "Software bugs", "Human users", "Network cables"],
+                    c: 2,
+                    exp: [
+                        "Phishing doesn't target physical hardware.",
+                        "Phishing exploits human trust, not software bugs.",
+                        "Phishing uses deceptive emails or messages to trick users into revealing sensitive information or clicking malicious links.",
+                        "Phishing is a social engineering attack, not a physical attack."
+                    ]
+                },
+                {
+                    q: "Which protocol provides secure web browsing?",
+                    a: ["HTTP", "FTP", "HTTPS", "SMTP"],
+                    c: 2,
+                    exp: [
+                        "HTTP is unencrypted and insecure.",
+                        "FTP is for file transfer, often unencrypted.",
+                        "HTTPS (HTTP Secure) uses SSL/TLS encryption to protect data transmitted between web browsers and servers.",
+                        "SMTP is for email transmission."
+                    ]
+                },
+                {
+                    q: "What is the principle of least privilege?",
+                    a: ["Give everyone admin access", "Minimum necessary access rights", "No access for anyone", "Maximum access for efficiency"],
+                    c: 1,
+                    exp: [
+                        "This violates the principle by over-permissioning.",
+                        "The principle of least privilege means users should only have the minimum access rights necessary to perform their job functions.",
+                        "This is too restrictive and impractical.",
+                        "This violates security by over-permissioning."
+                    ]
+                },
+                {
+                    q: "Backup and disaster recovery primarily support:",
+                    a: ["Confidentiality", "Integrity", "Availability", "Authentication"],
+                    c: 2,
+                    exp: [
+                        "Backups don't primarily protect confidentiality.",
+                        "While backups can help restore data integrity, their main purpose is availability.",
+                        "Backups and disaster recovery ensure systems and data remain available even after incidents like hardware failure or attacks.",
+                        "Backups don't verify identity."
+                    ]
+                },
+                {
+                    q: "What is a zero-day vulnerability?",
+                    a: ["A vulnerability known for zero days", "Unknown vulnerability with no patch", "A vulnerability that takes zero days to fix", "A non-existent vulnerability"],
+                    c: 1,
+                    exp: [
+                        "The term doesn't refer to how long it's been known.",
+                        "A zero-day vulnerability is a previously unknown security flaw that hackers can exploit before developers have had zero days to create a patch.",
+                        "Zero-day means no fix exists yet, not that it's instantly fixed.",
+                        "Zero-day vulnerabilities are very real threats."
+                    ]
+                },
+                {
+                    q: "VPN stands for:",
+                    a: ["Very Private Network", "Virtual Private Network", "Verified Protection Network", "Visual Privacy Node"],
+                    c: 1,
+                    exp: [
+                        "This is not the correct acronym.",
+                        "VPN (Virtual Private Network) creates an encrypted tunnel for secure communication over public networks.",
+                        "This is not the correct term.",
+                        "This is not a real networking term."
+                    ]
+                },
+                {
+                    q: "What is penetration testing?",
+                    a: ["Installing antivirus", "Authorized simulated attack", "Backing up data", "Installing firewalls"],
+                    c: 1,
+                    exp: [
+                        "This is basic security maintenance.",
+                        "Penetration testing (pen testing) is an authorized simulated cyber attack to evaluate system security and identify vulnerabilities.",
+                        "This is data protection, not security testing.",
+                        "This is installing defenses, not testing them."
+                    ]
+                },
+                {
+                    q: "What does IDS stand for?",
+                    a: ["Internet Data Service", "Intrusion Detection System", "Internal Defense Security", "Information Distribution System"],
+                    c: 1,
+                    exp: [
+                        "This is not a security term.",
+                        "IDS (Intrusion Detection System) monitors network traffic for suspicious activity and potential threats.",
+                        "This is not the correct acronym.",
+                        "This relates to data sharing, not security."
+                    ]
+                },
+                {
+                    q: "Strong passwords should include:",
+                    a: ["Only lowercase letters", "Mix of characters, numbers, symbols", "Personal information", "Common words"],
+                    c: 1,
+                    exp: [
+                        "This is too simple and easily cracked.",
+                        "Strong passwords combine uppercase and lowercase letters, numbers, and special symbols, avoiding dictionary words and personal information.",
+                        "Personal information makes passwords guessable.",
+                        "Common words are vulnerable to dictionary attacks."
+                    ]
+                },
+                {
+                    q: "What is tailgating in security?",
+                    a: ["Following too close while driving", "Following someone through a secure door", "Tracking someone online", "Email surveillance"],
+                    c: 1,
+                    exp: [
+                        "This is traffic behavior, not security.",
+                        "Tailgating (or piggybacking) is following an authorized person through a secure door without proper authentication.",
+                        "This is digital tracking, not physical access.",
+                        "This is electronic monitoring, not physical security."
+                    ]
+                },
+                {
+                    q: "What is ransomware?",
+                    a: ["Free security software", "Malware that encrypts data for ransom", "A type of firewall", "Backup software"],
+                    c: 1,
+                    exp: [
+                        "Ransomware is malicious, not free security software.",
+                        "Ransomware encrypts victim's files and demands payment (usually cryptocurrency) for the decryption key.",
+                        "Ransomware is an attack, not a defense.",
+                        "Ransomware destroys access to data, it doesn't back it up."
+                    ]
+                },
+                {
+                    q: "SSL/TLS certificates provide:",
+                    a: ["Virus protection", "Encrypted communication", "Data backup", "Password storage"],
+                    c: 1,
+                    exp: [
+                        "Antivirus provides virus protection.",
+                        "SSL/TLS certificates enable encrypted communication between clients and servers, ensuring data confidentiality and authenticity.",
+                        "Backup software handles data backups.",
+                        "Password managers store passwords securely."
+                    ]
+                },
+                {
+                    q: "What is the purpose of access control?",
+                    a: ["Speed up systems", "Restrict unauthorized access", "Increase storage", "Improve graphics"],
+                    c: 1,
+                    exp: [
+                        "Access control doesn't affect system speed.",
+                        "Access control determines who can access resources and what actions they can perform, enforcing authorization policies.",
+                        "Access control doesn't affect storage capacity.",
+                        "Access control is about security, not graphics."
+                    ]
+                },
+                {
+                    q: "Biometric authentication uses:",
+                    a: ["Passwords", "Physical characteristics", "Security questions", "PINs"],
+                    c: 1,
+                    exp: [
+                        "Passwords are knowledge-based, not biometric.",
+                        "Biometric authentication uses unique physical characteristics like fingerprints, facial recognition, or iris scans to verify identity.",
+                        "Security questions are knowledge-based.",
+                        "PINs are knowledge-based credentials."
+                    ]
+                },
+                {
+                    q: "What is a botnet?",
+                    a: ["Security tool", "Network of infected computers", "Antivirus program", "Firewall type"],
+                    c: 1,
+                    exp: [
+                        "Botnets are malicious, not security tools.",
+                        "A botnet is a network of compromised computers controlled by an attacker to perform coordinated attacks like DDoS.",
+                        "Botnets are threats, not protection.",
+                        "Botnets are attack infrastructure, not defense."
+                    ]
+                },
+                {
+                    q: "What does patch management involve?",
+                    a: ["Repairing physical damage", "Updating software to fix vulnerabilities", "Network cabling", "Hardware replacement"],
+                    c: 1,
+                    exp: [
+                        "Patch management is software-focused, not physical repairs.",
+                        "Patch management is the process of regularly updating software to fix security vulnerabilities and bugs.",
+                        "This is physical infrastructure, not software updates.",
+                        "Patch management updates software, not hardware."
+                    ]
+                },
+                {
+                    q: "Two-factor authentication requires:",
+                    a: ["Two passwords", "Two different types of credentials", "Two computers", "Two antivirus programs"],
+                    c: 1,
+                    exp: [
+                        "Two passwords are still just one factor (knowledge).",
+                        "2FA requires two different types of authentication factors: typically something you know (password) plus something you have (phone/token).",
+                        "Physical devices aren't authentication factors.",
+                        "Antivirus programs aren't authentication factors."
+                    ]
+                },
+                {
+                    q: "What is spear phishing?",
+                    a: ["Fishing with a spear", "Targeted phishing attack", "Random mass emails", "Hardware attack"],
+                    c: 1,
+                    exp: [
+                        "This is actual fishing, not a cyber attack.",
+                        "Spear phishing is a targeted phishing attack directed at specific individuals or organizations using personalized information.",
+                        "Generic mass emails are regular phishing, not spear phishing.",
+                        "Spear phishing is a social engineering attack, not hardware-based."
+                    ]
+                },
+                {
+                    q: "What is encryption at rest?",
+                    a: ["Encrypting data during transmission", "Encrypting stored data", "Encrypting passwords only", "Not encrypting anything"],
+                    c: 1,
+                    exp: [
+                        "That's encryption in transit, not at rest.",
+                        "Encryption at rest protects stored data on disks, databases, or other storage media when not actively being used.",
+                        "Encryption at rest protects all stored data, not just passwords.",
+                        "This is the opposite of encryption at rest."
+                    ]
+                },
+                {
+                    q: "What is a security audit?",
+                    a: ["Deleting old files", "Systematic evaluation of security", "Installing updates", "Buying new hardware"],
+                    c: 1,
+                    exp: [
+                        "This is file management, not security evaluation.",
+                        "A security audit is a systematic evaluation of an organization's security policies, controls, and practices to identify weaknesses.",
+                        "This is maintenance, not comprehensive evaluation.",
+                        "This is procurement, not security assessment."
+                    ]
+                },
+                {
+                    q: "What is the purpose of logging?",
+                    a: ["Cutting down trees", "Recording system events for analysis", "Speeding up computers", "Saving electricity"],
+                    c: 1,
+                    exp: [
+                        "This is forestry, not IT security.",
+                        "Logging records system events, user activities, and security incidents for monitoring, analysis, and forensic investigation.",
+                        "Logging is for monitoring and security, not performance.",
+                        "Logging is about security monitoring, not power management."
+                    ]
+                },
+                {
+                    q: "What is whitelisting?",
+                    a: ["Blocking everything", "Allowing only approved items", "Painting walls white", "Deleting spam"],
+                    c: 1,
+                    exp: [
+                        "Whitelisting allows approved items, not blocks everything.",
+                        "Whitelisting permits only pre-approved applications, users, or IP addresses while blocking everything else by default.",
+                        "This is painting, not security policy.",
+                        "This is email filtering, not a whitelist approach."
+                    ]
+                },
+                {
+                    q: "What is the main goal of information security?",
+                    a: ["Make systems faster", "Protect information assets", "Reduce costs", "Increase storage"],
+                    c: 1,
+                    exp: [
+                        "Speed is a performance goal, not security.",
+                        "The main goal of information security is to protect the confidentiality, integrity, and availability of information assets.",
+                        "Cost reduction is a business goal, not security's primary objective.",
+                        "Storage capacity is an infrastructure concern, not security."
+                    ]
+                },
+                {
+                    q: "What is shoulder surfing?",
+                    a: ["Water sport", "Observing someone's screen or keyboard", "Network monitoring", "Virus scanning"],
+                    c: 1,
+                    exp: [
+                        "This is a recreational activity, not a security threat.",
+                        "Shoulder surfing is watching someone enter sensitive information like passwords by looking over their shoulder or nearby.",
+                        "This is technical monitoring, not physical observation.",
+                        "This is malware detection, not human observation."
                     ]
                 }
             ],
@@ -568,10 +959,342 @@
                         "Java does NOT support multiple inheritance for classes (inheriting from multiple classes) to avoid the diamond problem. Use interfaces instead.",
                         "Hierarchical inheritance is supported (one parent, multiple children)."
                     ]
+                },
+                // Additional 30 IntProg questions
+                {
+                    q: "What is a class in Java?",
+                    a: ["A function", "A blueprint for objects", "A variable", "A loop"],
+                    c: 1,
+                    exp: [
+                        "Functions are methods within classes.",
+                        "A class is a blueprint or template that defines the structure and behavior of objects, containing fields and methods.",
+                        "Variables are data holders within classes.",
+                        "Loops are control structures, not classes."
+                    ]
+                },
+                {
+                    q: "What is an object?",
+                    a: ["A class definition", "An instance of a class", "A method", "A package"],
+                    c: 1,
+                    exp: [
+                        "A class is the blueprint, not an object.",
+                        "An object is a specific instance of a class with its own state and behavior.",
+                        "Methods are functions within classes.",
+                        "Packages organize classes, they're not objects."
+                    ]
+                },
+                {
+                    q: "The 'this' keyword refers to:",
+                    a: ["The superclass", "The current object", "A static variable", "A method parameter"],
+                    c: 1,
+                    exp: [
+                        "'super' refers to the superclass, not 'this'.",
+                        "'this' is a reference to the current object instance within a class.",
+                        "'this' refers to instance context, not static context.",
+                        "'this' refers to the object, not parameters."
+                    ]
+                },
+                {
+                    q: "What is method overloading?",
+                    a: ["Same method name, different parameters", "Same method in parent and child", "Too many methods", "Private methods"],
+                    c: 0,
+                    exp: [
+                        "Method overloading allows multiple methods with the same name but different parameter lists in the same class.",
+                        "That describes method overriding, not overloading.",
+                        "This is not a technical definition.",
+                        "Access modifiers don't define overloading."
+                    ]
+                },
+                {
+                    q: "What does 'final' keyword prevent in Java?",
+                    a: ["Compilation", "Modification/inheritance", "Execution", "Declaration"],
+                    c: 1,
+                    exp: [
+                        "'final' doesn't prevent compilation.",
+                        "'final' prevents modification of variables, overriding of methods, and inheritance of classes.",
+                        "'final' doesn't prevent execution.",
+                        "'final' doesn't prevent declaration."
+                    ]
+                },
+                {
+                    q: "What is a constructor?",
+                    a: ["A special method to initialize objects", "A destructor", "A loop", "A data type"],
+                    c: 0,
+                    exp: [
+                        "A constructor is a special method called when an object is created, used to initialize the object's state.",
+                        "Java uses garbage collection, not destructors.",
+                        "Constructors are not loops.",
+                        "Constructors are methods, not data types."
+                    ]
+                },
+                {
+                    q: "What is the 'super' keyword used for?",
+                    a: ["Access superclass members", "Create objects", "Define variables", "Import packages"],
+                    c: 0,
+                    exp: [
+                        "'super' is used to access members (fields and methods) of the parent/superclass.",
+                        "'new' creates objects, not 'super'.",
+                        "'super' accesses parent members, doesn't define variables.",
+                        "'import' handles packages, not 'super'."
+                    ]
+                },
+                {
+                    q: "What is an interface in Java?",
+                    a: ["A class with all abstract methods", "A contract for classes", "A variable type", "A loop structure"],
+                    c: 1,
+                    exp: [
+                        "Interfaces can have default and static methods too.",
+                        "An interface is a contract that specifies what methods a class must implement, defining behavior without implementation.",
+                        "Interfaces are not variable types.",
+                        "Interfaces are not loop structures."
+                    ]
+                },
+                {
+                    q: "What is the 'static' keyword used for?",
+                    a: ["Instance variables", "Class-level members", "Local variables", "Constants only"],
+                    c: 1,
+                    exp: [
+                        "'static' creates class-level members, not instance-level.",
+                        "'static' makes members belong to the class itself rather than to instances of the class.",
+                        "Local variables can't be static.",
+                        "'static' is used for class members, not just constants."
+                    ]
+                },
+                {
+                    q: "What is compile-time polymorphism?",
+                    a: ["Method overriding", "Method overloading", "Inheritance", "Encapsulation"],
+                    c: 1,
+                    exp: [
+                        "Overriding is runtime polymorphism.",
+                        "Method overloading is compile-time (static) polymorphism, determined during compilation.",
+                        "Inheritance enables polymorphism but isn't polymorphism itself.",
+                        "Encapsulation is a different OOP concept."
+                    ]
+                },
+                {
+                    q: "What is runtime polymorphism?",
+                    a: ["Method overloading", "Method overriding", "Variable declaration", "Object creation"],
+                    c: 1,
+                    exp: [
+                        "Overloading is compile-time polymorphism.",
+                        "Method overriding is runtime (dynamic) polymorphism, determined during program execution.",
+                        "Variable declaration isn't polymorphism.",
+                        "Object creation isn't polymorphism."
+                    ]
+                },
+                {
+                    q: "What is the purpose of 'private' access modifier?",
+                    a: ["Allow public access", "Restrict access to class only", "Allow package access", "Allow subclass access"],
+                    c: 1,
+                    exp: [
+                        "'public' allows public access, not 'private'.",
+                        "'private' restricts access to within the same class only, implementing encapsulation.",
+                        "'package-private' (default) allows package access.",
+                        "'protected' allows subclass access."
+                    ]
+                },
+                {
+                    q: "What does 'protected' access modifier allow?",
+                    a: ["Access from anywhere", "Access in same package and subclasses", "No access", "Private access only"],
+                    c: 1,
+                    exp: [
+                        "'public' allows access from anywhere.",
+                        "'protected' allows access within the same package and by subclasses in other packages.",
+                        "'protected' does allow access in specific contexts.",
+                        "'private' provides private access, not 'protected'."
+                    ]
+                },
+                {
+                    q: "What is an abstract class?",
+                    a: ["A complete class", "A class that cannot be instantiated", "A final class", "An interface"],
+                    c: 1,
+                    exp: [
+                        "Abstract classes are incomplete by design.",
+                        "An abstract class cannot be instantiated directly and may contain abstract methods that must be implemented by subclasses.",
+                        "'final' classes can't be inherited; abstract classes are for inheritance.",
+                        "Abstract classes and interfaces are different constructs."
+                    ]
+                },
+                {
+                    q: "What is an abstract method?",
+                    a: ["A method with implementation", "A method without implementation", "A static method", "A final method"],
+                    c: 1,
+                    exp: [
+                        "Abstract methods have no implementation.",
+                        "An abstract method is declared without a body and must be implemented by concrete subclasses.",
+                        "Abstract methods can't be static.",
+                        "Abstract methods can't be final (final prevents overriding)."
+                    ]
+                },
+                {
+                    q: "Can an abstract class have concrete methods?",
+                    a: ["No, only abstract methods", "Yes, it can have both", "Only static methods", "Only private methods"],
+                    c: 1,
+                    exp: [
+                        "Abstract classes can have both abstract and concrete methods.",
+                        "An abstract class can contain both abstract methods (without implementation) and concrete methods (with implementation).",
+                        "Abstract classes can have any type of method.",
+                        "Abstract classes can have methods with any access modifier."
+                    ]
+                },
+                {
+                    q: "What is the difference between interface and abstract class?",
+                    a: ["No difference", "Interfaces have only abstract methods (before Java 8)", "Abstract classes are faster", "Interfaces can't be inherited"],
+                    c: 1,
+                    exp: [
+                        "There are significant differences between them.",
+                        "Traditionally, interfaces contained only abstract methods (before Java 8 added default methods), while abstract classes can have both abstract and concrete methods.",
+                        "Performance differences are minimal.",
+                        "Interfaces are implemented; classes can implement multiple interfaces."
+                    ]
+                },
+                {
+                    q: "Can a class implement multiple interfaces?",
+                    a: ["No, only one", "Yes, multiple interfaces", "Only if abstract", "Only if final"],
+                    c: 1,
+                    exp: [
+                        "Classes can implement multiple interfaces.",
+                        "Java allows a class to implement multiple interfaces, providing a way to achieve multiple inheritance of behavior.",
+                        "Any class can implement multiple interfaces, not just abstract ones.",
+                        "Final classes can implement interfaces too."
+                    ]
+                },
+                {
+                    q: "What is the 'new' keyword used for?",
+                    a: ["Deleting objects", "Creating objects", "Defining classes", "Importing packages"],
+                    c: 1,
+                    exp: [
+                        "Java has automatic garbage collection; no manual deletion with 'new'.",
+                        "'new' is used to create new instances (objects) of classes.",
+                        "Classes are defined with 'class' keyword.",
+                        "'import' handles packages."
+                    ]
+                },
+                {
+                    q: "What is a package in Java?",
+                    a: ["A compressed file", "A namespace for classes", "A method", "A data type"],
+                    c: 1,
+                    exp: [
+                        "Packages aren't compressed files.",
+                        "A package is a namespace that organizes related classes and interfaces, preventing naming conflicts.",
+                        "Packages organize classes, they're not methods.",
+                        "Packages are organizational units, not data types."
+                    ]
+                },
+                {
+                    q: "What does the 'import' statement do?",
+                    a: ["Creates classes", "Makes classes accessible", "Deletes classes", "Compiles classes"],
+                    c: 1,
+                    exp: [
+                        "'import' doesn't create classes.",
+                        "'import' makes classes from other packages accessible without using fully qualified names.",
+                        "'import' doesn't delete anything.",
+                        "Compilation is separate from importing."
+                    ]
+                },
+                {
+                    q: "What is method chaining?",
+                    a: ["Linking methods together", "Calling methods sequentially on same object", "Breaking methods", "Deleting methods"],
+                    c: 1,
+                    exp: [
+                        "This is vague; chaining is more specific.",
+                        "Method chaining allows calling multiple methods on the same object in a single statement by returning 'this'.",
+                        "Chaining doesn't break methods.",
+                        "Chaining doesn't delete methods."
+                    ]
+                },
+                {
+                    q: "What is a getter method?",
+                    a: ["Sets a value", "Returns a value", "Deletes a value", "Creates a value"],
+                    c: 1,
+                    exp: [
+                        "That's a setter method.",
+                        "A getter (accessor) method returns the value of a private field, following encapsulation principles.",
+                        "Getters retrieve values, they don't delete them.",
+                        "Getters return existing values, they don't create them."
+                    ]
+                },
+                {
+                    q: "What is a setter method?",
+                    a: ["Returns a value", "Sets/modifies a value", "Deletes a value", "Compares values"],
+                    c: 1,
+                    exp: [
+                        "That's a getter method.",
+                        "A setter (mutator) method sets or modifies the value of a private field, following encapsulation principles.",
+                        "Setters modify values, they don't delete them.",
+                        "Setters assign values, they don't compare them."
+                    ]
+                },
+                {
+                    q: "What is composition in OOP?",
+                    a: ["Inheritance relationship", "HAS-A relationship", "IS-A relationship", "No relationship"],
+                    c: 1,
+                    exp: [
+                        "Inheritance is IS-A, not composition.",
+                        "Composition represents a HAS-A relationship where one class contains objects of other classes as members.",
+                        "IS-A is inheritance, not composition.",
+                        "Composition is a strong relationship."
+                    ]
+                },
+                {
+                    q: "What is the difference between composition and inheritance?",
+                    a: ["No difference", "Composition is HAS-A, Inheritance is IS-A", "Both are same", "Composition is faster"],
+                    c: 1,
+                    exp: [
+                        "They are fundamentally different concepts.",
+                        "Composition (HAS-A) means an object contains other objects, while Inheritance (IS-A) means a class extends another class.",
+                        "They represent different relationships.",
+                        "Performance isn't the key difference."
+                    ]
+                },
+                {
+                    q: "What is the 'instanceof' operator used for?",
+                    a: ["Creating instances", "Testing object type", "Deleting objects", "Comparing values"],
+                    c: 1,
+                    exp: [
+                        "'new' creates instances.",
+                        "'instanceof' tests whether an object is an instance of a specific class or implements an interface.",
+                        "Java has automatic garbage collection.",
+                        "'instanceof' checks types, not values."
+                    ]
+                },
+                {
+                    q: "Can constructors be inherited?",
+                    a: ["Yes, always", "No, but subclass can call parent constructor", "Only if public", "Only if protected"],
+                    c: 1,
+                    exp: [
+                        "Constructors are not inherited.",
+                        "Constructors are not inherited, but subclasses can call parent constructors using 'super()'.",
+                        "Access modifiers don't enable inheritance of constructors.",
+                        "Constructors aren't inherited regardless of access modifier."
+                    ]
+                },
+                {
+                    q: "What is the default constructor?",
+                    a: ["A constructor with parameters", "A no-argument constructor", "A static constructor", "A private constructor"],
+                    c: 1,
+                    exp: [
+                        "That's a parameterized constructor.",
+                        "A default constructor is a no-argument constructor automatically provided by Java if no constructors are defined.",
+                        "Constructors can't be static.",
+                        "Default constructors are typically public."
+                    ]
+                },
+                {
+                    q: "What is constructor overloading?",
+                    a: ["Multiple constructors with different parameters", "One constructor only", "Deleting constructors", "Inheriting constructors"],
+                    c: 0,
+                    exp: [
+                        "Constructor overloading allows multiple constructors with different parameter lists in the same class.",
+                        "Overloading means having multiple constructors.",
+                        "Constructors aren't deleted.",
+                        "Constructors aren't inherited."
+                    ]
                 }
             ]
         };
 
+        let quizData = {};
         let currentCategory = '';
         let currentQuestionIndex = 0;
         let score = 0;
@@ -581,6 +1304,18 @@
         let timeLeft = 30;
         let timerInterval;
         let answered = false;
+        let userAnswers = [];
+        let reviewFilter = 'all';
+
+        // Shuffle function
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
 
         function showCategorySelection() {
             const name = document.getElementById('user-name').value.trim();
@@ -600,6 +1335,22 @@
             wrongAnswers = 0;
             streak = 0;
             maxStreak = 0;
+            userAnswers = [];
+            
+            // Randomize questions and shuffle answer choices
+            const questions = shuffle(quizDataBank[cat]);
+            quizData[cat] = questions.map(q => {
+                const shuffledAnswers = q.a.map((ans, idx) => ({ answer: ans, originalIndex: idx, explanation: q.exp[idx] }));
+                const randomized = shuffle(shuffledAnswers);
+                
+                return {
+                    q: q.q,
+                    a: randomized.map(item => item.answer),
+                    c: randomized.findIndex(item => item.originalIndex === q.c),
+                    exp: randomized.map(item => item.explanation)
+                };
+            });
+            
             document.getElementById('category-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
             loadQuestion();
@@ -682,6 +1433,18 @@
             const correctIdx = qData.c;
             const buttons = document.getElementById('options-container').children;
             
+            // Store user's answer for review
+            userAnswers.push({
+                question: qData.q,
+                userAnswer: idx >= 0 ? qData.a[idx] : "No answer (Time's up)",
+                correctAnswer: qData.a[correctIdx],
+                isCorrect: idx === correctIdx,
+                allOptions: qData.a,
+                explanations: qData.exp,
+                correctIdx: correctIdx,
+                userIdx: idx
+            });
+            
             // Mark correct and wrong answers
             Array.from(buttons).forEach((wrapper, i) => {
                 const button = wrapper.querySelector('button');
@@ -698,7 +1461,7 @@
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <div class="font-bold text-emerald-400 mb-1">Right answer</div>
+                                <div class="font-bold text-emerald-400 mb-1">Correct answer</div>
                                 <div class="text-slate-300 text-sm leading-relaxed">${qData.exp[i]}</div>
                             </div>
                         </div>
@@ -779,6 +1542,91 @@
             
             document.getElementById('rank-text').innerText = rank;
             document.getElementById('rank-badge').innerText = badge;
+        }
+
+        function showReviewCenter() {
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('review-screen').classList.remove('hidden');
+            reviewFilter = 'all';
+            renderReview();
+        }
+
+        function backToResults() {
+            document.getElementById('review-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+        }
+
+        function filterReview(filter) {
+            reviewFilter = filter;
+            
+            // Update button styles
+            document.getElementById('filter-all').className = 'px-6 py-3 rounded-xl glass border-2 ' + (filter === 'all' ? 'border-purple-500' : 'border-transparent hover:border-purple-500') + ' font-semibold transition-all';
+            document.getElementById('filter-correct').className = 'px-6 py-3 rounded-xl glass border-2 ' + (filter === 'correct' ? 'border-emerald-500' : 'border-transparent hover:border-emerald-500') + ' font-semibold transition-all';
+            document.getElementById('filter-wrong').className = 'px-6 py-3 rounded-xl glass border-2 ' + (filter === 'wrong' ? 'border-red-500' : 'border-transparent hover:border-red-500') + ' font-semibold transition-all';
+            
+            renderReview();
+        }
+
+        function renderReview() {
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+            
+            const filteredAnswers = userAnswers.filter(answer => {
+                if(reviewFilter === 'correct') return answer.isCorrect;
+                if(reviewFilter === 'wrong') return !answer.isCorrect;
+                return true;
+            });
+
+            if(filteredAnswers.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center glass rounded-2xl p-12">
+                        <div class="text-6xl mb-4">🎯</div>
+                        <p class="text-xl text-slate-300">No questions in this category</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredAnswers.forEach((answer, index) => {
+                const reviewItem = document.createElement('div');
+                reviewItem.className = 'review-item glass rounded-2xl p-6 border-l-4 ' + (answer.isCorrect ? 'border-emerald-500' : 'border-red-500');
+                
+                const optionsHTML = answer.allOptions.map((opt, idx) => {
+                    let optionClass = 'p-4 rounded-xl mb-2 ';
+                    let icon = '';
+                    
+                    if(idx === answer.correctIdx) {
+                        optionClass += 'bg-emerald-500/20 border-2 border-emerald-500';
+                        icon = '<span class="text-emerald-400 font-bold mr-2">✓</span>';
+                    } else if(idx === answer.userIdx && !answer.isCorrect) {
+                        optionClass += 'bg-red-500/20 border-2 border-red-500';
+                        icon = '<span class="text-red-400 font-bold mr-2">✗</span>';
+                    } else {
+                        optionClass += 'bg-slate-800/30';
+                    }
+                    
+                    return `
+                        <div class="${optionClass}">
+                            <div class="font-semibold mb-2">${icon}${String.fromCharCode(65 + idx)}. ${opt}</div>
+                            <div class="text-sm text-slate-300 ml-6">${answer.explanations[idx]}</div>
+                        </div>
+                    `;
+                }).join('');
+                
+                reviewItem.innerHTML = `
+                    <div class="flex items-start mb-4">
+                        <div class="w-10 h-10 rounded-full ${answer.isCorrect ? 'bg-emerald-500' : 'bg-red-500'} flex items-center justify-center font-bold mr-4 flex-shrink-0">
+                            ${userAnswers.indexOf(answer) + 1}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold mb-4">${answer.question}</h3>
+                            ${optionsHTML}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(reviewItem);
+            });
         }
     </script>
 </body>
