@@ -3,1631 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InfoSec & IntProg Challenge - Enhanced</title>
+    <title>Academic Quiz Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-30px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes scaleIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-        
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        .slide-in { animation: slideIn 0.5s ease-out; }
-        .scale-in { animation: scaleIn 0.4s ease-out; }
-        
-        .correct { 
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; 
-            border-color: #34d399 !important;
-            transform: scale(1.02);
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4) !important;
-        }
-        .wrong { 
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; 
-            border-color: #f87171 !important;
-            transform: scale(0.98);
-            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.4) !important;
-        }
-        
-        .explanation-box {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out, padding 0.3s ease-out, margin 0.3s ease-out;
-        }
-        
-        .explanation-box.show {
-            max-height: 300px;
-            padding: 1rem;
-            margin-top: 0.5rem;
-        }
-        
-        /* Gradient backgrounds */
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .gradient-bg-2 {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        .gradient-bg-3 {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-        .gradient-bg-4 {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-        
-        /* Glass morphism */
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        /* Shimmer effect */
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            background-size: 1000px 100%;
-            animation: shimmer 2s infinite;
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1e293b; }
-        ::-webkit-scrollbar-thumb { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            border-radius: 10px;
-        }
-        
-        /* Timer pulse */
-        .timer-pulse {
-            animation: pulse 1s ease-in-out infinite;
-        }
-        
-        /* Floating particles background */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: -1;
-        }
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
-            animation: float 20s infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) translateX(0); }
-            50% { transform: translateY(-100px) translateX(100px); }
-        }
-
-        .review-item {
-            transition: all 0.3s ease;
-        }
-        .review-item:hover {
-            transform: translateX(5px);
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white min-h-screen relative overflow-x-hidden">
-
-    <!-- Floating particles background -->
-    <div class="particles">
-        <div class="particle" style="width: 300px; height: 300px; top: 10%; left: 10%; animation-duration: 25s;"></div>
-        <div class="particle" style="width: 200px; height: 200px; top: 60%; left: 70%; animation-duration: 30s; animation-delay: 5s;"></div>
-        <div class="particle" style="width: 250px; height: 250px; top: 40%; left: 40%; animation-duration: 35s; animation-delay: 10s;"></div>
+<body class="bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 min-h-screen">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Preparing Quiz...</p>
+        </div>
     </div>
 
-    <div id="app" class="max-w-4xl mx-auto p-6 relative z-10">
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
         
         <!-- Setup Screen -->
-        <div id="setup-screen" class="mt-20 text-center fade-in">
-            <div class="mb-8">
-                <div class="inline-block p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-6 shadow-2xl">
-                    <svg class="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+        <div id="setup-screen" class="screen active">
+            <div class="text-center mb-12 mt-16">
+                <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl shadow-xl mb-6">
+                    <svg class="w-12 h-12 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
+                <h1 class="text-5xl md:text-6xl font-bold text-white mb-3">Academic Quiz</h1>
+                <div class="h-1 w-24 mx-auto bg-orange-500 rounded-full mb-4"></div>
+                <p class="text-slate-300 text-lg">Comprehensive Knowledge Assessment</p>
             </div>
             
-            <h1 class="text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 drop-shadow-2xl">
-                Quiz Master
-            </h1>
-            <div class="h-1 w-32 mx-auto bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mb-6"></div>
-            
-            <p class="mb-10 text-slate-300 text-xl font-light">
-                Test your knowledge with 40 challenging questions
-            </p>
-            
-            <div class="glass rounded-3xl p-8 max-w-md mx-auto shadow-2xl">
+            <div class="max-w-md mx-auto bg-white rounded-2xl shadow-2xl p-8">
+                <label for="user-name" class="block text-sm font-semibold text-slate-700 mb-2">Student Name</label>
                 <input 
                     type="text" 
                     id="user-name" 
-                    placeholder="Enter your name" 
-                    class="p-5 rounded-2xl bg-slate-800/50 border-2 border-slate-700 w-full mb-6 text-center text-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent shadow-xl transition-all placeholder-slate-500"
+                    placeholder="Enter your full name" 
+                    class="w-full px-4 py-4 text-lg border-2 border-slate-300 rounded-lg focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all mb-6"
                 >
                 <button 
                     onclick="showCategorySelection()" 
-                    class="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-12 py-5 rounded-2xl font-bold text-xl transition-all transform hover:scale-105 hover:shadow-2xl shadow-lg relative overflow-hidden group"
+                    class="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
                 >
-                    <span class="relative z-10">Start Challenge</span>
-                    <div class="absolute inset-0 shimmer"></div>
+                    Begin Assessment
                 </button>
             </div>
         </div>
 
         <!-- Category Selection Screen -->
-        <div id="category-screen" class="hidden mt-20 fade-in">
+        <div id="category-screen" class="screen">
             <div class="text-center mb-12">
-                <h2 class="text-5xl font-black mb-3">
-                    Choose Your Path, 
-                    <span id="display-name" class="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400"></span>
+                <h2 class="text-4xl md:text-5xl font-bold text-white mb-3">
+                    Please select a subject, <span id="display-name" class="text-orange-500"></span>
                 </h2>
-                <p class="text-slate-400 text-lg">Select a category to begin your 40-question challenge</p>
+                <p class="text-slate-300">Choose one subject for your 50-question assessment</p>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <!-- InfoSec Card -->
-                <button 
-                    onclick="startQuiz('infosec')" 
-                    class="group p-10 glass rounded-3xl transition-all transform hover:scale-105 hover:shadow-2xl shadow-xl text-left relative overflow-hidden"
-                >
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="text-6xl mb-6 transform group-hover:scale-110 transition-transform">🛡️</div>
-                        <h3 class="text-3xl font-bold mb-3 group-hover:text-cyan-400 transition-colors">
-                            Information Security
-                        </h3>
-                        <p class="text-slate-400 mb-6 leading-relaxed">
-                            40 questions on CIA Triad, Threats, Risk Management, and Security Fundamentals
-                        </p>
-                        <div class="flex items-center text-cyan-400 font-semibold">
-                            <span>Begin Journey</span>
-                            <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <button onclick="startQuiz('infosec')" class="category-card">
+                    <div class="text-6xl mb-4">🛡️</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Information Security</h3>
+                    <p class="text-slate-300 mb-4 text-sm">CIA Triad, Threats, Risk Management</p>
+                    <div class="flex items-center justify-between text-sm font-semibold text-orange-500">
+                        <span>50 Questions</span>
+                        <span>→</span>
                     </div>
                 </button>
                 
-                <!-- IntProg Card -->
-                <button 
-                    onclick="startQuiz('intprog')" 
-                    class="group p-10 glass rounded-3xl transition-all transform hover:scale-105 hover:shadow-2xl shadow-xl text-left relative overflow-hidden"
-                >
-                    <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-green-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
-                    <div class="relative z-10">
-                        <div class="text-6xl mb-6 transform group-hover:scale-110 transition-transform">💻</div>
-                        <h3 class="text-3xl font-bold mb-3 group-hover:text-emerald-400 transition-colors">
-                            Integrative Programming
-                        </h3>
-                        <p class="text-slate-400 mb-6 leading-relaxed">
-                            40 questions on OOP, Inheritance, Polymorphism, and Java Concepts
-                        </p>
-                        <div class="flex items-center text-emerald-400 font-semibold">
-                            <span>Begin Journey</span>
-                            <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </div>
+                <button onclick="startQuiz('intprog')" class="category-card">
+                    <div class="text-6xl mb-4">💻</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Integrative Programming</h3>
+                    <p class="text-slate-300 mb-4 text-sm">OOP, Inheritance, Polymorphism, Java</p>
+                    <div class="flex items-center justify-between text-sm font-semibold text-orange-500">
+                        <span>50 Questions</span>
+                        <span>→</span>
+                    </div>
+                </button>
+
+                <button onclick="startQuiz('sysadmn')" class="category-card">
+                    <div class="text-6xl mb-4">⚙️</div>
+                    <h3 class="text-2xl font-bold text-white mb-2">System Administration</h3>
+                    <p class="text-slate-300 mb-4 text-sm">Linux Commands & Operations</p>
+                    <div class="flex items-center justify-between text-sm font-semibold text-orange-500">
+                        <span>50 Questions</span>
+                        <span>→</span>
                     </div>
                 </button>
             </div>
         </div>
 
         <!-- Quiz Screen -->
-        <div id="quiz-screen" class="hidden mt-10 fade-in">
-            <!-- Progress Bar -->
-            <div class="mb-6">
-                <div class="flex justify-between mb-2">
-                    <span id="question-count" class="font-bold text-purple-400 text-lg"></span>
-                    <span id="score-display" class="font-bold text-emerald-400 text-lg">Score: <span id="current-score">0</span></span>
+        <div id="quiz-screen" class="screen">
+            <div class="bg-slate-800 rounded-lg p-4 mb-4 shadow-xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                    <span id="question-count" class="font-bold text-slate-300 text-sm">Question 1 of 50</span>
+                    <span class="font-bold text-green-400 text-sm">Score: <span id="current-score">0</span></span>
                 </div>
-                <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                    <div id="progress-bar" class="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500 rounded-full"></div>
+                <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="h-full bg-gradient-to-r from-orange-500 to-orange-600 transition-all duration-500"></div>
                 </div>
             </div>
             
-            <!-- Timer & Info -->
-            <div class="glass rounded-2xl p-6 mb-6 shadow-xl">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center shadow-lg">
-                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="grid grid-cols-2 gap-3 mb-4">
+                <div class="bg-slate-800 rounded-lg p-4 shadow-xl">
+                    <div class="flex items-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                         <div>
-                            <div class="text-slate-400 text-sm">Time Remaining</div>
-                            <div id="timer" class="text-3xl font-mono font-black text-orange-400"></div>
+                            <div class="text-xs text-slate-400">Time Left</div>
+                            <div id="timer" class="text-xl font-mono font-black text-orange-500">30s</div>
                         </div>
                     </div>
-                    
-                    <div class="text-right">
-                        <div class="text-slate-400 text-sm">Current Streak</div>
-                        <div id="streak" class="text-2xl font-bold text-yellow-400">0 🔥</div>
+                </div>
+                
+                <div class="bg-slate-800 rounded-lg p-4 shadow-xl">
+                    <div class="flex items-center gap-2">
+                        <div class="text-3xl">🔥</div>
+                        <div>
+                            <div class="text-xs text-slate-400">Streak</div>
+                            <div id="streak" class="text-xl font-black text-yellow-500">0</div>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Question Card -->
-            <div class="glass rounded-3xl p-10 mb-8 shadow-2xl border-2 border-purple-500/20 slide-in">
-                <div class="flex items-start mb-4">
-                    <div class="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold mr-4 shadow-lg flex-shrink-0">
+            <div class="bg-slate-800 rounded-xl p-5 mb-6 shadow-xl">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold flex-shrink-0 text-sm">
                         <span id="q-number">1</span>
                     </div>
-                    <h2 id="question-text" class="text-2xl font-semibold leading-relaxed"></h2>
+                    <h2 id="question-text" class="text-lg md:text-xl font-semibold text-slate-100"></h2>
                 </div>
             </div>
             
-            <!-- Options -->
-            <div id="options-container" class="grid grid-cols-1 gap-4"></div>
+            <div id="options-container" class="space-y-3 mb-6"></div>
             
-            <!-- Next Button (appears after answering) -->
-            <div id="next-button-container" class="hidden mt-6 text-center">
-                <button 
-                    onclick="nextQuestion()" 
-                    class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
-                >
+            <div id="next-button-container" class="hidden text-center">
+                <button onclick="nextQuestion()" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-10 py-3 rounded-lg font-bold text-base transition-all transform hover:scale-105 shadow-lg">
                     Next Question →
                 </button>
             </div>
         </div>
 
         <!-- Result Screen -->
-        <div id="result-screen" class="hidden mt-20 text-center fade-in">
-            <div class="glass rounded-3xl p-12 shadow-2xl border-2 border-purple-500/20">
-                <div class="mb-8">
-                    <div class="inline-block p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-2xl mb-6">
-                        <svg class="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
+        <div id="result-screen" class="screen">
+            <div class="bg-white rounded-2xl p-12 shadow-2xl max-w-2xl mx-auto text-center">
+                <div class="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                
+                <h2 class="text-5xl font-bold text-slate-800 mb-8">Assessment Complete</h2>
+                
+                <div class="inline-flex items-center justify-center w-48 h-48 rounded-full border-8 border-orange-500 bg-orange-50 mb-8">
+                    <div>
+                        <div id="final-score" class="text-5xl font-black text-slate-800"></div>
+                        <div class="text-sm text-slate-600 font-semibold">SCORE</div>
                     </div>
                 </div>
                 
-                <h2 class="text-5xl font-black mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                    Quiz Complete!
-                </h2>
+                <div class="bg-slate-100 rounded-xl p-6 mb-8 inline-block">
+                    <div id="rank-badge" class="text-6xl mb-2"></div>
+                    <p id="rank-text" class="text-2xl font-bold text-orange-600"></p>
+                </div>
                 
-                <div class="mb-8">
-                    <div class="inline-flex items-center justify-center w-48 h-48 rounded-full border-8 border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-2xl mb-6">
-                        <div class="text-center">
-                            <div id="final-score" class="text-5xl font-black text-white mb-2"></div>
-                            <div class="text-sm text-slate-300 font-semibold">POINTS</div>
-                        </div>
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <div class="bg-slate-100 rounded-xl p-4">
+                        <div class="text-3xl font-black text-green-600" id="correct-count">0</div>
+                        <div class="text-sm text-slate-600">Correct</div>
+                    </div>
+                    <div class="bg-slate-100 rounded-xl p-4">
+                        <div class="text-3xl font-black text-red-600" id="wrong-count">0</div>
+                        <div class="text-sm text-slate-600">Wrong</div>
+                    </div>
+                    <div class="bg-slate-100 rounded-xl p-4">
+                        <div class="text-3xl font-black text-slate-700" id="accuracy">0%</div>
+                        <div class="text-sm text-slate-600">Accuracy</div>
                     </div>
                 </div>
                 
-                <div class="glass rounded-2xl p-6 mb-8 inline-block">
-                    <div id="rank-badge" class="text-6xl mb-3"></div>
-                    <p id="rank-text" class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-orange-400"></p>
-                </div>
-                
-                <div class="grid grid-cols-3 gap-4 mb-8 max-w-md mx-auto">
-                    <div class="glass rounded-xl p-4">
-                        <div class="text-3xl font-black text-emerald-400" id="correct-count">0</div>
-                        <div class="text-sm text-slate-400">Correct</div>
-                    </div>
-                    <div class="glass rounded-xl p-4">
-                        <div class="text-3xl font-black text-red-400" id="wrong-count">0</div>
-                        <div class="text-sm text-slate-400">Wrong</div>
-                    </div>
-                    <div class="glass rounded-xl p-4">
-                        <div class="text-3xl font-black text-purple-400" id="accuracy">0%</div>
-                        <div class="text-sm text-slate-400">Accuracy</div>
-                    </div>
-                </div>
-                
-                <div class="flex gap-4 justify-center">
-                    <button 
-                        onclick="showReviewCenter()" 
-                        class="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
-                    >
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="showReviewCenter()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold transition-all">
                         📚 Review Answers
                     </button>
-                    <button 
-                        onclick="location.reload()" 
-                        class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
-                    >
-                        Play Again
+                    <button onclick="location.reload()" class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-4 rounded-lg font-bold transition-all">
+                        Retake Quiz
                     </button>
                 </div>
             </div>
         </div>
 
         <!-- Review Center -->
-        <div id="review-screen" class="hidden mt-10 fade-in">
+        <div id="review-screen" class="screen">
             <div class="text-center mb-8">
-                <h2 class="text-5xl font-black mb-3 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400">
-                    📚 Review Center
-                </h2>
-                <p class="text-slate-400 text-lg">Review all questions and their correct answers</p>
+                <h2 class="text-5xl font-bold text-white mb-3">Answer Review</h2>
+                <p class="text-slate-300">Detailed breakdown with explanations</p>
             </div>
 
-            <div class="mb-6 flex justify-center gap-4">
-                <button 
-                    onclick="filterReview('all')" 
-                    id="filter-all"
-                    class="px-6 py-3 rounded-xl glass border-2 border-purple-500 font-semibold transition-all"
-                >
-                    All Questions
-                </button>
-                <button 
-                    onclick="filterReview('correct')" 
-                    id="filter-correct"
-                    class="px-6 py-3 rounded-xl glass border-2 border-transparent hover:border-emerald-500 font-semibold transition-all"
-                >
-                    ✅ Correct
-                </button>
-                <button 
-                    onclick="filterReview('wrong')" 
-                    id="filter-wrong"
-                    class="px-6 py-3 rounded-xl glass border-2 border-transparent hover:border-red-500 font-semibold transition-all"
-                >
-                    ❌ Wrong
-                </button>
+            <div class="flex flex-wrap gap-3 mb-8 items-center" style="margin-left: auto; margin-right: auto; width: fit-content;">
+                <button onclick="filterReview('all')" id="filter-all" class="filter-btn active">All Questions</button>
+                <button onclick="filterReview('correct')" id="filter-correct" class="filter-btn">✅ Correct</button>
+                <button onclick="filterReview('wrong')" id="filter-wrong" class="filter-btn">❌ Wrong</button>
             </div>
 
             <div id="review-container" class="space-y-6 mb-8"></div>
 
             <div class="text-center">
-                <button 
-                    onclick="backToResults()" 
-                    class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 px-12 py-4 rounded-2xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg"
-                >
+                <button onclick="backToResults()" class="bg-slate-600 hover:bg-slate-700 text-white px-8 py-4 rounded-lg font-bold transition-all">
                     ← Back to Results
                 </button>
             </div>
         </div>
     </div>
 
-    <script>
-        const quizDataBank = {
-            infosec: [
-                { 
-                    q: "Which property ensures information is shared only with authorized persons?", 
-                    a: ["Confidentiality", "Integrity", "Availability", "Non-repudiation"], 
-                    c: 0,
-                    exp: [
-                        "Confidentiality ensures that information is accessible only to authorized individuals. This is the cornerstone of data privacy and protection.",
-                        "Integrity ensures data hasn't been tampered with, not who can access it.",
-                        "Availability ensures systems are accessible when needed, not who can access information.",
-                        "Non-repudiation prevents denial of actions, not controlling access to information."
-                    ]
-                },
-                { 
-                    q: "What security goal is violated if a hacker modifies a bank database?", 
-                    a: ["Confidentiality", "Integrity", "Availability", "Accountability"], 
-                    c: 1,
-                    exp: [
-                        "Confidentiality deals with unauthorized viewing, not modification.",
-                        "Integrity ensures data accuracy and prevents unauthorized modification. When a hacker changes database values, integrity is compromised.",
-                        "Availability concerns system uptime, not data modification.",
-                        "Accountability tracks who did what, but the primary violation here is integrity."
-                    ]
-                },
-                { 
-                    q: "Ensuring systems are accessible when needed is called:", 
-                    a: ["Confidentiality", "Efficiency", "Availability", "Integrity"], 
-                    c: 2,
-                    exp: [
-                        "Confidentiality is about keeping information private, not system uptime.",
-                        "Efficiency is about performance, not accessibility.",
-                        "Availability ensures authorized users can access systems and data when needed. This includes preventing DoS attacks and ensuring redundancy.",
-                        "Integrity is about data accuracy, not system accessibility."
-                    ]
-                },
-                { 
-                    q: "The 'CIA' Triad stands for:", 
-                    a: ["Code, Information, Access", "Confidentiality, Integrity, Availability", "Control, Identity, Audit", "Centralized Internal Assets"], 
-                    c: 1,
-                    exp: [
-                        "These are not the pillars of information security.",
-                        "The CIA Triad is the fundamental model for information security, consisting of Confidentiality, Integrity, and Availability.",
-                        "While important, these don't form the CIA Triad.",
-                        "This is not a recognized security framework."
-                    ]
-                },
-                { 
-                    q: "Which is a 'Force of Nature' threat?", 
-                    a: ["Hacking", "SQL Injection", "Flood", "Social Engineering"], 
-                    c: 2,
-                    exp: [
-                        "Hacking is a deliberate human act, not a natural force.",
-                        "SQL Injection is a technical attack, not a natural disaster.",
-                        "Floods, earthquakes, fires, and other natural disasters are 'Forces of Nature' that can damage IT infrastructure and cause data loss.",
-                        "Social engineering is a human-based attack technique."
-                    ]
-                },
-                { 
-                    q: "A weakness in a system that could be exploited is a:", 
-                    a: ["Threat", "Vulnerability", "Risk", "Exploit"], 
-                    c: 1,
-                    exp: [
-                        "A threat is a potential danger, not the weakness itself.",
-                        "A vulnerability is a weakness or flaw in a system that can be exploited. Examples include unpatched software or weak passwords.",
-                        "Risk is the likelihood of a threat exploiting a vulnerability.",
-                        "An exploit is the actual code or technique used to take advantage of a vulnerability."
-                    ]
-                },
-                { 
-                    q: "Which threat involves looking through trash for information?", 
-                    a: ["Phishing", "Sniffing", "Dumpster Diving", "Tailgating"], 
-                    c: 2,
-                    exp: [
-                        "Phishing uses fake emails to steal credentials, not physical trash.",
-                        "Sniffing captures network traffic, not physical documents.",
-                        "Dumpster diving is searching through trash to find sensitive information like passwords, account numbers, or company documents.",
-                        "Tailgating is following someone through a secure door."
-                    ]
-                },
-                { 
-                    q: "A DoS attack targets which security goal?", 
-                    a: ["Confidentiality", "Integrity", "Availability", "Authenticity"], 
-                    c: 2,
-                    exp: [
-                        "DoS doesn't steal information, so confidentiality isn't the primary target.",
-                        "DoS doesn't modify data, so integrity isn't the main goal.",
-                        "Denial of Service (DoS) attacks overwhelm systems to make them unavailable to legitimate users, directly attacking availability.",
-                        "DoS doesn't impersonate users, so authenticity isn't the target."
-                    ]
-                },
-                { 
-                    q: "Using threats to demand money is called:", 
-                    a: ["Extortion", "Espionage", "Theft", "Vandalism"], 
-                    c: 0,
-                    exp: [
-                        "Extortion involves threatening to harm someone or their property unless demands (usually money) are met. Ransomware is a digital form of extortion.",
-                        "Espionage is spying to gather intelligence, not demanding money.",
-                        "Theft is taking property without threats.",
-                        "Vandalism is destructive damage, not demanding payment."
-                    ]
-                },
-                { 
-                    q: "Human error such as deleting a file is a:", 
-                    a: ["Technical Failure", "Force of Nature", "Act of Human Error", "Deliberate Act"], 
-                    c: 2,
-                    exp: [
-                        "Technical failures are hardware/software problems, not human mistakes.",
-                        "Forces of nature are environmental threats like floods.",
-                        "Acts of human error include accidental deletions, misconfigurations, or clicking malicious links without malicious intent.",
-                        "Deliberate acts are intentional, while accidental deletion is unintentional."
-                    ]
-                },
-                // Additional 30 InfoSec questions
-                {
-                    q: "What does authentication verify?",
-                    a: ["What you know", "Who you are", "What you can do", "Where you are"],
-                    c: 1,
-                    exp: [
-                        "This relates to credentials like passwords.",
-                        "Authentication verifies the identity of a user - confirming who you are through credentials, biometrics, or tokens.",
-                        "This relates to authorization (permissions).",
-                        "This relates to location-based access control."
-                    ]
-                },
-                {
-                    q: "Which is NOT a type of malware?",
-                    a: ["Trojan", "Worm", "Firewall", "Ransomware"],
-                    c: 2,
-                    exp: [
-                        "Trojans are malicious programs disguised as legitimate software.",
-                        "Worms are self-replicating malware that spread across networks.",
-                        "A firewall is a security device that monitors and controls network traffic - it's a defense tool, not malware.",
-                        "Ransomware encrypts data and demands payment for decryption."
-                    ]
-                },
-                {
-                    q: "Encryption protects which CIA element?",
-                    a: ["Confidentiality", "Integrity", "Availability", "All of the above"],
-                    c: 0,
-                    exp: [
-                        "Encryption primarily protects confidentiality by making data unreadable to unauthorized parties, though it can also support integrity through digital signatures.",
-                        "While digital signatures (a form of encryption) help with integrity, encryption's primary role is confidentiality.",
-                        "Encryption doesn't directly ensure availability.",
-                        "Encryption primarily protects confidentiality."
-                    ]
-                },
-                {
-                    q: "What is social engineering?",
-                    a: ["Network hacking", "Manipulating people to divulge information", "Hardware theft", "Software vulnerability"],
-                    c: 1,
-                    exp: [
-                        "Network hacking is technical, not psychological manipulation.",
-                        "Social engineering exploits human psychology to trick people into revealing sensitive information or performing actions that compromise security.",
-                        "Hardware theft is physical, not psychological.",
-                        "Software vulnerabilities are technical flaws."
-                    ]
-                },
-                {
-                    q: "Multi-factor authentication combines:",
-                    a: ["Two passwords", "Multiple security types", "Several firewalls", "Many antivirus programs"],
-                    c: 1,
-                    exp: [
-                        "Using two passwords doesn't provide multiple factors.",
-                        "MFA combines different types of authentication factors: something you know (password), something you have (token), and something you are (biometric).",
-                        "Firewalls are network security, not authentication factors.",
-                        "Antivirus is malware protection, not authentication."
-                    ]
-                },
-                {
-                    q: "What does a firewall primarily do?",
-                    a: ["Detect viruses", "Filter network traffic", "Encrypt data", "Backup files"],
-                    c: 1,
-                    exp: [
-                        "Antivirus software detects viruses, not firewalls.",
-                        "Firewalls monitor and control incoming and outgoing network traffic based on predetermined security rules, acting as a barrier between trusted and untrusted networks.",
-                        "Encryption tools encrypt data, not firewalls.",
-                        "Backup software handles file backups."
-                    ]
-                },
-                {
-                    q: "Phishing attacks primarily target:",
-                    a: ["Hardware", "Software bugs", "Human users", "Network cables"],
-                    c: 2,
-                    exp: [
-                        "Phishing doesn't target physical hardware.",
-                        "Phishing exploits human trust, not software bugs.",
-                        "Phishing uses deceptive emails or messages to trick users into revealing sensitive information or clicking malicious links.",
-                        "Phishing is a social engineering attack, not a physical attack."
-                    ]
-                },
-                {
-                    q: "Which protocol provides secure web browsing?",
-                    a: ["HTTP", "FTP", "HTTPS", "SMTP"],
-                    c: 2,
-                    exp: [
-                        "HTTP is unencrypted and insecure.",
-                        "FTP is for file transfer, often unencrypted.",
-                        "HTTPS (HTTP Secure) uses SSL/TLS encryption to protect data transmitted between web browsers and servers.",
-                        "SMTP is for email transmission."
-                    ]
-                },
-                {
-                    q: "What is the principle of least privilege?",
-                    a: ["Give everyone admin access", "Minimum necessary access rights", "No access for anyone", "Maximum access for efficiency"],
-                    c: 1,
-                    exp: [
-                        "This violates the principle by over-permissioning.",
-                        "The principle of least privilege means users should only have the minimum access rights necessary to perform their job functions.",
-                        "This is too restrictive and impractical.",
-                        "This violates security by over-permissioning."
-                    ]
-                },
-                {
-                    q: "Backup and disaster recovery primarily support:",
-                    a: ["Confidentiality", "Integrity", "Availability", "Authentication"],
-                    c: 2,
-                    exp: [
-                        "Backups don't primarily protect confidentiality.",
-                        "While backups can help restore data integrity, their main purpose is availability.",
-                        "Backups and disaster recovery ensure systems and data remain available even after incidents like hardware failure or attacks.",
-                        "Backups don't verify identity."
-                    ]
-                },
-                {
-                    q: "What is a zero-day vulnerability?",
-                    a: ["A vulnerability known for zero days", "Unknown vulnerability with no patch", "A vulnerability that takes zero days to fix", "A non-existent vulnerability"],
-                    c: 1,
-                    exp: [
-                        "The term doesn't refer to how long it's been known.",
-                        "A zero-day vulnerability is a previously unknown security flaw that hackers can exploit before developers have had zero days to create a patch.",
-                        "Zero-day means no fix exists yet, not that it's instantly fixed.",
-                        "Zero-day vulnerabilities are very real threats."
-                    ]
-                },
-                {
-                    q: "VPN stands for:",
-                    a: ["Very Private Network", "Virtual Private Network", "Verified Protection Network", "Visual Privacy Node"],
-                    c: 1,
-                    exp: [
-                        "This is not the correct acronym.",
-                        "VPN (Virtual Private Network) creates an encrypted tunnel for secure communication over public networks.",
-                        "This is not the correct term.",
-                        "This is not a real networking term."
-                    ]
-                },
-                {
-                    q: "What is penetration testing?",
-                    a: ["Installing antivirus", "Authorized simulated attack", "Backing up data", "Installing firewalls"],
-                    c: 1,
-                    exp: [
-                        "This is basic security maintenance.",
-                        "Penetration testing (pen testing) is an authorized simulated cyber attack to evaluate system security and identify vulnerabilities.",
-                        "This is data protection, not security testing.",
-                        "This is installing defenses, not testing them."
-                    ]
-                },
-                {
-                    q: "What does IDS stand for?",
-                    a: ["Internet Data Service", "Intrusion Detection System", "Internal Defense Security", "Information Distribution System"],
-                    c: 1,
-                    exp: [
-                        "This is not a security term.",
-                        "IDS (Intrusion Detection System) monitors network traffic for suspicious activity and potential threats.",
-                        "This is not the correct acronym.",
-                        "This relates to data sharing, not security."
-                    ]
-                },
-                {
-                    q: "Strong passwords should include:",
-                    a: ["Only lowercase letters", "Mix of characters, numbers, symbols", "Personal information", "Common words"],
-                    c: 1,
-                    exp: [
-                        "This is too simple and easily cracked.",
-                        "Strong passwords combine uppercase and lowercase letters, numbers, and special symbols, avoiding dictionary words and personal information.",
-                        "Personal information makes passwords guessable.",
-                        "Common words are vulnerable to dictionary attacks."
-                    ]
-                },
-                {
-                    q: "What is tailgating in security?",
-                    a: ["Following too close while driving", "Following someone through a secure door", "Tracking someone online", "Email surveillance"],
-                    c: 1,
-                    exp: [
-                        "This is traffic behavior, not security.",
-                        "Tailgating (or piggybacking) is following an authorized person through a secure door without proper authentication.",
-                        "This is digital tracking, not physical access.",
-                        "This is electronic monitoring, not physical security."
-                    ]
-                },
-                {
-                    q: "What is ransomware?",
-                    a: ["Free security software", "Malware that encrypts data for ransom", "A type of firewall", "Backup software"],
-                    c: 1,
-                    exp: [
-                        "Ransomware is malicious, not free security software.",
-                        "Ransomware encrypts victim's files and demands payment (usually cryptocurrency) for the decryption key.",
-                        "Ransomware is an attack, not a defense.",
-                        "Ransomware destroys access to data, it doesn't back it up."
-                    ]
-                },
-                {
-                    q: "SSL/TLS certificates provide:",
-                    a: ["Virus protection", "Encrypted communication", "Data backup", "Password storage"],
-                    c: 1,
-                    exp: [
-                        "Antivirus provides virus protection.",
-                        "SSL/TLS certificates enable encrypted communication between clients and servers, ensuring data confidentiality and authenticity.",
-                        "Backup software handles data backups.",
-                        "Password managers store passwords securely."
-                    ]
-                },
-                {
-                    q: "What is the purpose of access control?",
-                    a: ["Speed up systems", "Restrict unauthorized access", "Increase storage", "Improve graphics"],
-                    c: 1,
-                    exp: [
-                        "Access control doesn't affect system speed.",
-                        "Access control determines who can access resources and what actions they can perform, enforcing authorization policies.",
-                        "Access control doesn't affect storage capacity.",
-                        "Access control is about security, not graphics."
-                    ]
-                },
-                {
-                    q: "Biometric authentication uses:",
-                    a: ["Passwords", "Physical characteristics", "Security questions", "PINs"],
-                    c: 1,
-                    exp: [
-                        "Passwords are knowledge-based, not biometric.",
-                        "Biometric authentication uses unique physical characteristics like fingerprints, facial recognition, or iris scans to verify identity.",
-                        "Security questions are knowledge-based.",
-                        "PINs are knowledge-based credentials."
-                    ]
-                },
-                {
-                    q: "What is a botnet?",
-                    a: ["Security tool", "Network of infected computers", "Antivirus program", "Firewall type"],
-                    c: 1,
-                    exp: [
-                        "Botnets are malicious, not security tools.",
-                        "A botnet is a network of compromised computers controlled by an attacker to perform coordinated attacks like DDoS.",
-                        "Botnets are threats, not protection.",
-                        "Botnets are attack infrastructure, not defense."
-                    ]
-                },
-                {
-                    q: "What does patch management involve?",
-                    a: ["Repairing physical damage", "Updating software to fix vulnerabilities", "Network cabling", "Hardware replacement"],
-                    c: 1,
-                    exp: [
-                        "Patch management is software-focused, not physical repairs.",
-                        "Patch management is the process of regularly updating software to fix security vulnerabilities and bugs.",
-                        "This is physical infrastructure, not software updates.",
-                        "Patch management updates software, not hardware."
-                    ]
-                },
-                {
-                    q: "Two-factor authentication requires:",
-                    a: ["Two passwords", "Two different types of credentials", "Two computers", "Two antivirus programs"],
-                    c: 1,
-                    exp: [
-                        "Two passwords are still just one factor (knowledge).",
-                        "2FA requires two different types of authentication factors: typically something you know (password) plus something you have (phone/token).",
-                        "Physical devices aren't authentication factors.",
-                        "Antivirus programs aren't authentication factors."
-                    ]
-                },
-                {
-                    q: "What is spear phishing?",
-                    a: ["Fishing with a spear", "Targeted phishing attack", "Random mass emails", "Hardware attack"],
-                    c: 1,
-                    exp: [
-                        "This is actual fishing, not a cyber attack.",
-                        "Spear phishing is a targeted phishing attack directed at specific individuals or organizations using personalized information.",
-                        "Generic mass emails are regular phishing, not spear phishing.",
-                        "Spear phishing is a social engineering attack, not hardware-based."
-                    ]
-                },
-                {
-                    q: "What is encryption at rest?",
-                    a: ["Encrypting data during transmission", "Encrypting stored data", "Encrypting passwords only", "Not encrypting anything"],
-                    c: 1,
-                    exp: [
-                        "That's encryption in transit, not at rest.",
-                        "Encryption at rest protects stored data on disks, databases, or other storage media when not actively being used.",
-                        "Encryption at rest protects all stored data, not just passwords.",
-                        "This is the opposite of encryption at rest."
-                    ]
-                },
-                {
-                    q: "What is a security audit?",
-                    a: ["Deleting old files", "Systematic evaluation of security", "Installing updates", "Buying new hardware"],
-                    c: 1,
-                    exp: [
-                        "This is file management, not security evaluation.",
-                        "A security audit is a systematic evaluation of an organization's security policies, controls, and practices to identify weaknesses.",
-                        "This is maintenance, not comprehensive evaluation.",
-                        "This is procurement, not security assessment."
-                    ]
-                },
-                {
-                    q: "What is the purpose of logging?",
-                    a: ["Cutting down trees", "Recording system events for analysis", "Speeding up computers", "Saving electricity"],
-                    c: 1,
-                    exp: [
-                        "This is forestry, not IT security.",
-                        "Logging records system events, user activities, and security incidents for monitoring, analysis, and forensic investigation.",
-                        "Logging is for monitoring and security, not performance.",
-                        "Logging is about security monitoring, not power management."
-                    ]
-                },
-                {
-                    q: "What is whitelisting?",
-                    a: ["Blocking everything", "Allowing only approved items", "Painting walls white", "Deleting spam"],
-                    c: 1,
-                    exp: [
-                        "Whitelisting allows approved items, not blocks everything.",
-                        "Whitelisting permits only pre-approved applications, users, or IP addresses while blocking everything else by default.",
-                        "This is painting, not security policy.",
-                        "This is email filtering, not a whitelist approach."
-                    ]
-                },
-                {
-                    q: "What is the main goal of information security?",
-                    a: ["Make systems faster", "Protect information assets", "Reduce costs", "Increase storage"],
-                    c: 1,
-                    exp: [
-                        "Speed is a performance goal, not security.",
-                        "The main goal of information security is to protect the confidentiality, integrity, and availability of information assets.",
-                        "Cost reduction is a business goal, not security's primary objective.",
-                        "Storage capacity is an infrastructure concern, not security."
-                    ]
-                },
-                {
-                    q: "What is shoulder surfing?",
-                    a: ["Water sport", "Observing someone's screen or keyboard", "Network monitoring", "Virus scanning"],
-                    c: 1,
-                    exp: [
-                        "This is a recreational activity, not a security threat.",
-                        "Shoulder surfing is watching someone enter sensitive information like passwords by looking over their shoulder or nearby.",
-                        "This is technical monitoring, not physical observation.",
-                        "This is malware detection, not human observation."
-                    ]
-                }
-            ],
-            intprog: [
-                { 
-                    q: "Which OOP concept represents the 'IS-A' relationship?", 
-                    a: ["Encapsulation", "Polymorphism", "Inheritance", "Abstraction"], 
-                    c: 2,
-                    exp: [
-                        "Encapsulation bundles data and methods, it doesn't define relationships.",
-                        "Polymorphism allows objects to take many forms, not relationships.",
-                        "Inheritance represents an 'IS-A' relationship. For example, a Dog IS-A Animal. The child class inherits properties from the parent.",
-                        "Abstraction hides complexity, not relationships."
-                    ]
-                },
-                { 
-                    q: "Binding data and functions together is called:", 
-                    a: ["Inheritance", "Abstraction", "Encapsulation", "Polymorphism"], 
-                    c: 2,
-                    exp: [
-                        "Inheritance is about deriving classes, not bundling data.",
-                        "Abstraction hides details, not bundling.",
-                        "Encapsulation wraps data (variables) and methods (functions) into a single unit (class) and restricts direct access to some components.",
-                        "Polymorphism is about multiple forms, not bundling."
-                    ]
-                },
-                { 
-                    q: "Which keyword is used to inherit a class in Java?", 
-                    a: ["implements", "extends", "inherits", "using"], 
-                    c: 1,
-                    exp: [
-                        "'implements' is used for interfaces, not class inheritance.",
-                        "'extends' is the keyword used in Java to inherit from a parent class. Example: class Dog extends Animal",
-                        "'inherits' is not a Java keyword.",
-                        "'using' is not used for inheritance in Java."
-                    ]
-                },
-                { 
-                    q: "The ability of an object to take many forms is:", 
-                    a: ["Polymorphism", "Encapsulation", "Inheritance", "Abstraction"], 
-                    c: 0,
-                    exp: [
-                        "Polymorphism allows objects to be treated as instances of their parent class. The same method can behave differently in different contexts (overloading and overriding).",
-                        "Encapsulation is about data hiding, not multiple forms.",
-                        "Inheritance is about deriving classes, not multiple forms.",
-                        "Abstraction is about hiding complexity, not multiple forms."
-                    ]
-                },
-                { 
-                    q: "In inheritance, the parent class is also called the:", 
-                    a: ["Subclass", "Derived class", "Superclass", "Child class"], 
-                    c: 2,
-                    exp: [
-                        "Subclass is the child that inherits, not the parent.",
-                        "Derived class is the child, not the parent.",
-                        "The parent class is called the superclass or base class. It's the class from which properties and methods are inherited.",
-                        "Child class is the one that inherits, not the parent."
-                    ]
-                },
-                { 
-                    q: "Which feature focuses on hiding internal details?", 
-                    a: ["Abstraction", "Inheritance", "Overloading", "Instantiation"], 
-                    c: 0,
-                    exp: [
-                        "Abstraction hides complex implementation details and shows only essential features. Users interact with simplified interfaces without knowing internal workings.",
-                        "Inheritance is about deriving classes, not hiding details.",
-                        "Overloading is about multiple methods with same name.",
-                        "Instantiation is creating objects."
-                    ]
-                },
-                { 
-                    q: "What is the main focus of OOP compared to Procedural?", 
-                    a: ["Functions", "Logic", "Data", "Speed"], 
-                    c: 2,
-                    exp: [
-                        "Procedural programming focuses on functions, not OOP.",
-                        "Both paradigms use logic.",
-                        "OOP focuses on data (objects and their interactions), while procedural programming focuses on functions and logic flow.",
-                        "Speed is not the distinguishing factor."
-                    ]
-                },
-                { 
-                    q: "A method in a subclass with the same signature as a superclass method is:", 
-                    a: ["Overloading", "Overriding", "Hiding", "Duplicating"], 
-                    c: 1,
-                    exp: [
-                        "Overloading uses same name but different parameters in the same class.",
-                        "Overriding occurs when a subclass provides its own implementation of a method already defined in its superclass with the same signature.",
-                        "Method hiding is different and involves static methods.",
-                        "Duplicating is not a formal OOP term."
-                    ]
-                },
-                { 
-                    q: "Multi-level inheritance is when:", 
-                    a: ["A inherits from B, B from C", "A inherits from B and C", "A is the only class", "Classes are jumbled"], 
-                    c: 0,
-                    exp: [
-                        "Multi-level inheritance creates a chain: C → B → A, where A inherits from B, and B inherits from C, forming multiple levels.",
-                        "This describes multiple inheritance, not multi-level.",
-                        "One class is not inheritance.",
-                        "This doesn't describe any inheritance type."
-                    ]
-                },
-                { 
-                    q: "Which inheritance is NOT supported for classes in Java?", 
-                    a: ["Single", "Multi-level", "Multiple", "Hierarchical"], 
-                    c: 2,
-                    exp: [
-                        "Single inheritance is supported (one parent).",
-                        "Multi-level inheritance is supported (chain of inheritance).",
-                        "Java does NOT support multiple inheritance for classes (inheriting from multiple classes) to avoid the diamond problem. Use interfaces instead.",
-                        "Hierarchical inheritance is supported (one parent, multiple children)."
-                    ]
-                },
-                // Additional 30 IntProg questions
-                {
-                    q: "What is a class in Java?",
-                    a: ["A function", "A blueprint for objects", "A variable", "A loop"],
-                    c: 1,
-                    exp: [
-                        "Functions are methods within classes.",
-                        "A class is a blueprint or template that defines the structure and behavior of objects, containing fields and methods.",
-                        "Variables are data holders within classes.",
-                        "Loops are control structures, not classes."
-                    ]
-                },
-                {
-                    q: "What is an object?",
-                    a: ["A class definition", "An instance of a class", "A method", "A package"],
-                    c: 1,
-                    exp: [
-                        "A class is the blueprint, not an object.",
-                        "An object is a specific instance of a class with its own state and behavior.",
-                        "Methods are functions within classes.",
-                        "Packages organize classes, they're not objects."
-                    ]
-                },
-                {
-                    q: "The 'this' keyword refers to:",
-                    a: ["The superclass", "The current object", "A static variable", "A method parameter"],
-                    c: 1,
-                    exp: [
-                        "'super' refers to the superclass, not 'this'.",
-                        "'this' is a reference to the current object instance within a class.",
-                        "'this' refers to instance context, not static context.",
-                        "'this' refers to the object, not parameters."
-                    ]
-                },
-                {
-                    q: "What is method overloading?",
-                    a: ["Same method name, different parameters", "Same method in parent and child", "Too many methods", "Private methods"],
-                    c: 0,
-                    exp: [
-                        "Method overloading allows multiple methods with the same name but different parameter lists in the same class.",
-                        "That describes method overriding, not overloading.",
-                        "This is not a technical definition.",
-                        "Access modifiers don't define overloading."
-                    ]
-                },
-                {
-                    q: "What does 'final' keyword prevent in Java?",
-                    a: ["Compilation", "Modification/inheritance", "Execution", "Declaration"],
-                    c: 1,
-                    exp: [
-                        "'final' doesn't prevent compilation.",
-                        "'final' prevents modification of variables, overriding of methods, and inheritance of classes.",
-                        "'final' doesn't prevent execution.",
-                        "'final' doesn't prevent declaration."
-                    ]
-                },
-                {
-                    q: "What is a constructor?",
-                    a: ["A special method to initialize objects", "A destructor", "A loop", "A data type"],
-                    c: 0,
-                    exp: [
-                        "A constructor is a special method called when an object is created, used to initialize the object's state.",
-                        "Java uses garbage collection, not destructors.",
-                        "Constructors are not loops.",
-                        "Constructors are methods, not data types."
-                    ]
-                },
-                {
-                    q: "What is the 'super' keyword used for?",
-                    a: ["Access superclass members", "Create objects", "Define variables", "Import packages"],
-                    c: 0,
-                    exp: [
-                        "'super' is used to access members (fields and methods) of the parent/superclass.",
-                        "'new' creates objects, not 'super'.",
-                        "'super' accesses parent members, doesn't define variables.",
-                        "'import' handles packages, not 'super'."
-                    ]
-                },
-                {
-                    q: "What is an interface in Java?",
-                    a: ["A class with all abstract methods", "A contract for classes", "A variable type", "A loop structure"],
-                    c: 1,
-                    exp: [
-                        "Interfaces can have default and static methods too.",
-                        "An interface is a contract that specifies what methods a class must implement, defining behavior without implementation.",
-                        "Interfaces are not variable types.",
-                        "Interfaces are not loop structures."
-                    ]
-                },
-                {
-                    q: "What is the 'static' keyword used for?",
-                    a: ["Instance variables", "Class-level members", "Local variables", "Constants only"],
-                    c: 1,
-                    exp: [
-                        "'static' creates class-level members, not instance-level.",
-                        "'static' makes members belong to the class itself rather than to instances of the class.",
-                        "Local variables can't be static.",
-                        "'static' is used for class members, not just constants."
-                    ]
-                },
-                {
-                    q: "What is compile-time polymorphism?",
-                    a: ["Method overriding", "Method overloading", "Inheritance", "Encapsulation"],
-                    c: 1,
-                    exp: [
-                        "Overriding is runtime polymorphism.",
-                        "Method overloading is compile-time (static) polymorphism, determined during compilation.",
-                        "Inheritance enables polymorphism but isn't polymorphism itself.",
-                        "Encapsulation is a different OOP concept."
-                    ]
-                },
-                {
-                    q: "What is runtime polymorphism?",
-                    a: ["Method overloading", "Method overriding", "Variable declaration", "Object creation"],
-                    c: 1,
-                    exp: [
-                        "Overloading is compile-time polymorphism.",
-                        "Method overriding is runtime (dynamic) polymorphism, determined during program execution.",
-                        "Variable declaration isn't polymorphism.",
-                        "Object creation isn't polymorphism."
-                    ]
-                },
-                {
-                    q: "What is the purpose of 'private' access modifier?",
-                    a: ["Allow public access", "Restrict access to class only", "Allow package access", "Allow subclass access"],
-                    c: 1,
-                    exp: [
-                        "'public' allows public access, not 'private'.",
-                        "'private' restricts access to within the same class only, implementing encapsulation.",
-                        "'package-private' (default) allows package access.",
-                        "'protected' allows subclass access."
-                    ]
-                },
-                {
-                    q: "What does 'protected' access modifier allow?",
-                    a: ["Access from anywhere", "Access in same package and subclasses", "No access", "Private access only"],
-                    c: 1,
-                    exp: [
-                        "'public' allows access from anywhere.",
-                        "'protected' allows access within the same package and by subclasses in other packages.",
-                        "'protected' does allow access in specific contexts.",
-                        "'private' provides private access, not 'protected'."
-                    ]
-                },
-                {
-                    q: "What is an abstract class?",
-                    a: ["A complete class", "A class that cannot be instantiated", "A final class", "An interface"],
-                    c: 1,
-                    exp: [
-                        "Abstract classes are incomplete by design.",
-                        "An abstract class cannot be instantiated directly and may contain abstract methods that must be implemented by subclasses.",
-                        "'final' classes can't be inherited; abstract classes are for inheritance.",
-                        "Abstract classes and interfaces are different constructs."
-                    ]
-                },
-                {
-                    q: "What is an abstract method?",
-                    a: ["A method with implementation", "A method without implementation", "A static method", "A final method"],
-                    c: 1,
-                    exp: [
-                        "Abstract methods have no implementation.",
-                        "An abstract method is declared without a body and must be implemented by concrete subclasses.",
-                        "Abstract methods can't be static.",
-                        "Abstract methods can't be final (final prevents overriding)."
-                    ]
-                },
-                {
-                    q: "Can an abstract class have concrete methods?",
-                    a: ["No, only abstract methods", "Yes, it can have both", "Only static methods", "Only private methods"],
-                    c: 1,
-                    exp: [
-                        "Abstract classes can have both abstract and concrete methods.",
-                        "An abstract class can contain both abstract methods (without implementation) and concrete methods (with implementation).",
-                        "Abstract classes can have any type of method.",
-                        "Abstract classes can have methods with any access modifier."
-                    ]
-                },
-                {
-                    q: "What is the difference between interface and abstract class?",
-                    a: ["No difference", "Interfaces have only abstract methods (before Java 8)", "Abstract classes are faster", "Interfaces can't be inherited"],
-                    c: 1,
-                    exp: [
-                        "There are significant differences between them.",
-                        "Traditionally, interfaces contained only abstract methods (before Java 8 added default methods), while abstract classes can have both abstract and concrete methods.",
-                        "Performance differences are minimal.",
-                        "Interfaces are implemented; classes can implement multiple interfaces."
-                    ]
-                },
-                {
-                    q: "Can a class implement multiple interfaces?",
-                    a: ["No, only one", "Yes, multiple interfaces", "Only if abstract", "Only if final"],
-                    c: 1,
-                    exp: [
-                        "Classes can implement multiple interfaces.",
-                        "Java allows a class to implement multiple interfaces, providing a way to achieve multiple inheritance of behavior.",
-                        "Any class can implement multiple interfaces, not just abstract ones.",
-                        "Final classes can implement interfaces too."
-                    ]
-                },
-                {
-                    q: "What is the 'new' keyword used for?",
-                    a: ["Deleting objects", "Creating objects", "Defining classes", "Importing packages"],
-                    c: 1,
-                    exp: [
-                        "Java has automatic garbage collection; no manual deletion with 'new'.",
-                        "'new' is used to create new instances (objects) of classes.",
-                        "Classes are defined with 'class' keyword.",
-                        "'import' handles packages."
-                    ]
-                },
-                {
-                    q: "What is a package in Java?",
-                    a: ["A compressed file", "A namespace for classes", "A method", "A data type"],
-                    c: 1,
-                    exp: [
-                        "Packages aren't compressed files.",
-                        "A package is a namespace that organizes related classes and interfaces, preventing naming conflicts.",
-                        "Packages organize classes, they're not methods.",
-                        "Packages are organizational units, not data types."
-                    ]
-                },
-                {
-                    q: "What does the 'import' statement do?",
-                    a: ["Creates classes", "Makes classes accessible", "Deletes classes", "Compiles classes"],
-                    c: 1,
-                    exp: [
-                        "'import' doesn't create classes.",
-                        "'import' makes classes from other packages accessible without using fully qualified names.",
-                        "'import' doesn't delete anything.",
-                        "Compilation is separate from importing."
-                    ]
-                },
-                {
-                    q: "What is method chaining?",
-                    a: ["Linking methods together", "Calling methods sequentially on same object", "Breaking methods", "Deleting methods"],
-                    c: 1,
-                    exp: [
-                        "This is vague; chaining is more specific.",
-                        "Method chaining allows calling multiple methods on the same object in a single statement by returning 'this'.",
-                        "Chaining doesn't break methods.",
-                        "Chaining doesn't delete methods."
-                    ]
-                },
-                {
-                    q: "What is a getter method?",
-                    a: ["Sets a value", "Returns a value", "Deletes a value", "Creates a value"],
-                    c: 1,
-                    exp: [
-                        "That's a setter method.",
-                        "A getter (accessor) method returns the value of a private field, following encapsulation principles.",
-                        "Getters retrieve values, they don't delete them.",
-                        "Getters return existing values, they don't create them."
-                    ]
-                },
-                {
-                    q: "What is a setter method?",
-                    a: ["Returns a value", "Sets/modifies a value", "Deletes a value", "Compares values"],
-                    c: 1,
-                    exp: [
-                        "That's a getter method.",
-                        "A setter (mutator) method sets or modifies the value of a private field, following encapsulation principles.",
-                        "Setters modify values, they don't delete them.",
-                        "Setters assign values, they don't compare them."
-                    ]
-                },
-                {
-                    q: "What is composition in OOP?",
-                    a: ["Inheritance relationship", "HAS-A relationship", "IS-A relationship", "No relationship"],
-                    c: 1,
-                    exp: [
-                        "Inheritance is IS-A, not composition.",
-                        "Composition represents a HAS-A relationship where one class contains objects of other classes as members.",
-                        "IS-A is inheritance, not composition.",
-                        "Composition is a strong relationship."
-                    ]
-                },
-                {
-                    q: "What is the difference between composition and inheritance?",
-                    a: ["No difference", "Composition is HAS-A, Inheritance is IS-A", "Both are same", "Composition is faster"],
-                    c: 1,
-                    exp: [
-                        "They are fundamentally different concepts.",
-                        "Composition (HAS-A) means an object contains other objects, while Inheritance (IS-A) means a class extends another class.",
-                        "They represent different relationships.",
-                        "Performance isn't the key difference."
-                    ]
-                },
-                {
-                    q: "What is the 'instanceof' operator used for?",
-                    a: ["Creating instances", "Testing object type", "Deleting objects", "Comparing values"],
-                    c: 1,
-                    exp: [
-                        "'new' creates instances.",
-                        "'instanceof' tests whether an object is an instance of a specific class or implements an interface.",
-                        "Java has automatic garbage collection.",
-                        "'instanceof' checks types, not values."
-                    ]
-                },
-                {
-                    q: "Can constructors be inherited?",
-                    a: ["Yes, always", "No, but subclass can call parent constructor", "Only if public", "Only if protected"],
-                    c: 1,
-                    exp: [
-                        "Constructors are not inherited.",
-                        "Constructors are not inherited, but subclasses can call parent constructors using 'super()'.",
-                        "Access modifiers don't enable inheritance of constructors.",
-                        "Constructors aren't inherited regardless of access modifier."
-                    ]
-                },
-                {
-                    q: "What is the default constructor?",
-                    a: ["A constructor with parameters", "A no-argument constructor", "A static constructor", "A private constructor"],
-                    c: 1,
-                    exp: [
-                        "That's a parameterized constructor.",
-                        "A default constructor is a no-argument constructor automatically provided by Java if no constructors are defined.",
-                        "Constructors can't be static.",
-                        "Default constructors are typically public."
-                    ]
-                },
-                {
-                    q: "What is constructor overloading?",
-                    a: ["Multiple constructors with different parameters", "One constructor only", "Deleting constructors", "Inheriting constructors"],
-                    c: 0,
-                    exp: [
-                        "Constructor overloading allows multiple constructors with different parameter lists in the same class.",
-                        "Overloading means having multiple constructors.",
-                        "Constructors aren't deleted.",
-                        "Constructors aren't inherited."
-                    ]
-                }
-            ]
-        };
-
-        let quizData = {};
-        let currentCategory = '';
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let wrongAnswers = 0;
-        let streak = 0;
-        let maxStreak = 0;
-        let timeLeft = 30;
-        let timerInterval;
-        let answered = false;
-        let userAnswers = [];
-        let reviewFilter = 'all';
-
-        // Shuffle function
-        function shuffle(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-            }
-            return newArray;
-        }
-
-        function showCategorySelection() {
-            const name = document.getElementById('user-name').value.trim();
-            if(!name) { 
-                alert("Please enter your name!"); 
-                return; 
-            }
-            document.getElementById('display-name').innerText = name;
-            document.getElementById('setup-screen').classList.add('hidden');
-            document.getElementById('category-screen').classList.remove('hidden');
-        }
-
-        function startQuiz(cat) {
-            currentCategory = cat;
-            currentQuestionIndex = 0;
-            score = 0;
-            wrongAnswers = 0;
-            streak = 0;
-            maxStreak = 0;
-            userAnswers = [];
-            
-            // Randomize questions and shuffle answer choices
-            const questions = shuffle(quizDataBank[cat]);
-            quizData[cat] = questions.map(q => {
-                const shuffledAnswers = q.a.map((ans, idx) => ({ answer: ans, originalIndex: idx, explanation: q.exp[idx] }));
-                const randomized = shuffle(shuffledAnswers);
-                
-                return {
-                    q: q.q,
-                    a: randomized.map(item => item.answer),
-                    c: randomized.findIndex(item => item.originalIndex === q.c),
-                    exp: randomized.map(item => item.explanation)
-                };
-            });
-            
-            document.getElementById('category-screen').classList.add('hidden');
-            document.getElementById('quiz-screen').classList.remove('hidden');
-            loadQuestion();
-        }
-
-        function loadQuestion() {
-            clearInterval(timerInterval);
-            timeLeft = 30;
-            answered = false;
-            updateTimerDisplay();
-            document.getElementById('next-button-container').classList.add('hidden');
-            
-            const qData = quizData[currentCategory][currentQuestionIndex];
-            const total = quizData[currentCategory].length;
-            const progress = ((currentQuestionIndex) / total) * 100;
-            
-            document.getElementById('question-count').innerText = `Question ${currentQuestionIndex + 1} of ${total}`;
-            document.getElementById('q-number').innerText = currentQuestionIndex + 1;
-            document.getElementById('question-text').innerText = qData.q;
-            document.getElementById('current-score').innerText = score;
-            document.getElementById('progress-bar').style.width = progress + '%';
-            document.getElementById('streak').innerText = streak + ' 🔥';
-            
-            const container = document.getElementById('options-container');
-            container.innerHTML = '';
-            
-            qData.a.forEach((opt, idx) => {
-                const optionWrapper = document.createElement('div');
-                optionWrapper.className = 'relative';
-                
-                const btn = document.createElement('button');
-                btn.className = "w-full p-6 text-left glass hover:bg-white/10 rounded-2xl transition-all border-2 border-transparent hover:border-purple-400 font-medium text-lg transform hover:scale-102 hover:shadow-xl group relative overflow-hidden";
-                
-                const optionLetter = String.fromCharCode(65 + idx);
-                btn.innerHTML = `
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center font-bold mr-4 group-hover:scale-110 transition-transform">
-                            ${optionLetter}
-                        </div>
-                        <span>${opt}</span>
-                    </div>
-                `;
-                btn.onclick = () => handleAnswer(idx, btn, optionWrapper);
-                
-                const explanationBox = document.createElement('div');
-                explanationBox.className = 'explanation-box glass rounded-xl';
-                explanationBox.setAttribute('data-explanation', idx);
-                
-                optionWrapper.appendChild(btn);
-                optionWrapper.appendChild(explanationBox);
-                container.appendChild(optionWrapper);
-            });
-
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                if(timeLeft <= 0) handleAnswer(-1, null, null);
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const timerEl = document.getElementById('timer');
-            timerEl.innerText = timeLeft + 's';
-            if(timeLeft < 10) {
-                timerEl.classList.remove('text-orange-400');
-                timerEl.classList.add('text-red-500', 'timer-pulse');
-            } else {
-                timerEl.classList.remove('text-red-500', 'timer-pulse');
-                timerEl.classList.add('text-orange-400');
-            }
-        }
-
-        function handleAnswer(idx, btn, optionWrapper) {
-            if(answered) return;
-            
-            clearInterval(timerInterval);
-            answered = true;
-            
-            const qData = quizData[currentCategory][currentQuestionIndex];
-            const correctIdx = qData.c;
-            const buttons = document.getElementById('options-container').children;
-            
-            // Store user's answer for review
-            userAnswers.push({
-                question: qData.q,
-                userAnswer: idx >= 0 ? qData.a[idx] : "No answer (Time's up)",
-                correctAnswer: qData.a[correctIdx],
-                isCorrect: idx === correctIdx,
-                allOptions: qData.a,
-                explanations: qData.exp,
-                correctIdx: correctIdx,
-                userIdx: idx
-            });
-            
-            // Mark correct and wrong answers
-            Array.from(buttons).forEach((wrapper, i) => {
-                const button = wrapper.querySelector('button');
-                const explanationBox = wrapper.querySelector('.explanation-box');
-                button.disabled = true;
-                
-                if(i === correctIdx) {
-                    button.classList.add('correct');
-                    explanationBox.innerHTML = `
-                        <div class="flex items-start space-x-3">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <div class="font-bold text-emerald-400 mb-1">Correct answer</div>
-                                <div class="text-slate-300 text-sm leading-relaxed">${qData.exp[i]}</div>
-                            </div>
-                        </div>
-                    `;
-                    explanationBox.classList.add('show');
-                } else if(i === idx && idx !== correctIdx) {
-                    button.classList.add('wrong');
-                    explanationBox.innerHTML = `
-                        <div class="flex items-start space-x-3">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                </svg>
-                            </div>
-                            <div class="flex-1">
-                                <div class="font-bold text-red-400 mb-1">Not quite</div>
-                                <div class="text-slate-300 text-sm leading-relaxed">${qData.exp[i]}</div>
-                            </div>
-                        </div>
-                    `;
-                    explanationBox.classList.add('show');
-                }
-            });
-            
-            // Update score
-            if(idx === correctIdx) {
-                score++;
-                streak++;
-                maxStreak = Math.max(maxStreak, streak);
-            } else {
-                wrongAnswers++;
-                streak = 0;
-            }
-            
-            document.getElementById('current-score').innerText = score;
-            document.getElementById('streak').innerText = streak + ' 🔥';
-            
-            // Show next button
-            document.getElementById('next-button-container').classList.remove('hidden');
-        }
-
-        function nextQuestion() {
-            currentQuestionIndex++;
-            if(currentQuestionIndex < quizData[currentCategory].length) {
-                loadQuestion();
-            } else {
-                showResults();
-            }
-        }
-
-        function showResults() {
-            document.getElementById('quiz-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
-            
-            const total = quizData[currentCategory].length;
-            const percent = Math.round((score/total) * 100);
-            
-            document.getElementById('final-score').innerText = `${score}/${total}`;
-            document.getElementById('correct-count').innerText = score;
-            document.getElementById('wrong-count').innerText = wrongAnswers;
-            document.getElementById('accuracy').innerText = percent + '%';
-            
-            let rank = "";
-            let badge = "";
-            if(percent >= 90) {
-                rank = "Elite Professional!";
-                badge = "🏆";
-            } else if(percent >= 75) {
-                rank = "Senior Specialist!";
-                badge = "🎖️";
-            } else if(percent >= 50) {
-                rank = "Qualified Associate!";
-                badge = "✅";
-            } else {
-                rank = "Keep Studying!";
-                badge = "📚";
-            }
-            
-            document.getElementById('rank-text').innerText = rank;
-            document.getElementById('rank-badge').innerText = badge;
-        }
-
-        function showReviewCenter() {
-            document.getElementById('result-screen').classList.add('hidden');
-            document.getElementById('review-screen').classList.remove('hidden');
-            reviewFilter = 'all';
-            renderReview();
-        }
-
-        function backToResults() {
-            document.getElementById('review-screen').classList.add('hidden');
-            document.getElementById('result-screen').classList.remove('hidden');
-        }
-
-        function filterReview(filter) {
-            reviewFilter = filter;
-            
-            // Update button styles
-            document.getElementById('filter-all').className = 'px-6 py-3 rounded-xl glass border-2 ' + (filter === 'all' ? 'border-purple-500' : 'border-transparent hover:border-purple-500') + ' font-semibold transition-all';
-            document.getElementById('filter-correct').className = 'px-6 py-3 rounded-xl glass border-2 ' + (filter === 'correct' ? 'border-emerald-500' : 'border-transparent hover:border-emerald-500') + ' font-semibold transition-all';
-            document.getElementById('filter-wrong').className = 'px-6 py-3 rounded-xl glass border-2 ' + (filter === 'wrong' ? 'border-red-500' : 'border-transparent hover:border-red-500') + ' font-semibold transition-all';
-            
-            renderReview();
-        }
-
-        function renderReview() {
-            const container = document.getElementById('review-container');
-            container.innerHTML = '';
-            
-            const filteredAnswers = userAnswers.filter(answer => {
-                if(reviewFilter === 'correct') return answer.isCorrect;
-                if(reviewFilter === 'wrong') return !answer.isCorrect;
-                return true;
-            });
-
-            if(filteredAnswers.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center glass rounded-2xl p-12">
-                        <div class="text-6xl mb-4">🎯</div>
-                        <p class="text-xl text-slate-300">No questions in this category</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            filteredAnswers.forEach((answer, index) => {
-                const reviewItem = document.createElement('div');
-                reviewItem.className = 'review-item glass rounded-2xl p-6 border-l-4 ' + (answer.isCorrect ? 'border-emerald-500' : 'border-red-500');
-                
-                const optionsHTML = answer.allOptions.map((opt, idx) => {
-                    let optionClass = 'p-4 rounded-xl mb-2 ';
-                    let icon = '';
-                    
-                    if(idx === answer.correctIdx) {
-                        optionClass += 'bg-emerald-500/20 border-2 border-emerald-500';
-                        icon = '<span class="text-emerald-400 font-bold mr-2">✓</span>';
-                    } else if(idx === answer.userIdx && !answer.isCorrect) {
-                        optionClass += 'bg-red-500/20 border-2 border-red-500';
-                        icon = '<span class="text-red-400 font-bold mr-2">✗</span>';
-                    } else {
-                        optionClass += 'bg-slate-800/30';
-                    }
-                    
-                    return `
-                        <div class="${optionClass}">
-                            <div class="font-semibold mb-2">${icon}${String.fromCharCode(65 + idx)}. ${opt}</div>
-                            <div class="text-sm text-slate-300 ml-6">${answer.explanations[idx]}</div>
-                        </div>
-                    `;
-                }).join('');
-                
-                reviewItem.innerHTML = `
-                    <div class="flex items-start mb-4">
-                        <div class="w-10 h-10 rounded-full ${answer.isCorrect ? 'bg-emerald-500' : 'bg-red-500'} flex items-center justify-center font-bold mr-4 flex-shrink-0">
-                            ${userAnswers.indexOf(answer) + 1}
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold mb-4">${answer.question}</h3>
-                            ${optionsHTML}
-                        </div>
-                    </div>
-                `;
-                
-                container.appendChild(reviewItem);
-            });
-        }
-    </script>
+    <script src="js/infosec.js"></script>
+    <script src="js/intprog.js"></script>
+    <script src="js/sysadmn.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
