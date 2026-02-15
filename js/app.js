@@ -71,19 +71,22 @@ function startQuiz(category) {
     // Shuffle and take 50 questions
     const shuffledQuestions = shuffle(allQuestions).slice(0, 50);
     
-    // For multiple choice (InfoSec & IntProg), shuffle answers and store explanations
+    // For multiple choice (InfoSec & IntProg), shuffle answers with new whyRight/whyWrong structure
     if (category !== 'sysadmn') {
         quizData = shuffledQuestions.map(q => {
-            const shuffledAnswers = q.a.map((ans, idx) => ({
-                answer: ans,
+            // Shuffle answer objects (each has option, and either whyRight or whyWrong)
+            const shuffledAnswers = q.a.map((ansObj, idx) => ({
+                ...ansObj,
                 originalIndex: idx
             }));
             const randomized = shuffle(shuffledAnswers);
+            
             return {
                 q: q.q,
-                a: randomized.map(item => item.answer),
-                c: randomized.findIndex(item => item.originalIndex === q.c),
-                exp: q.exp || "Review this topic for better understanding."
+                a: randomized.map(item => item.option),
+                whyRight: randomized.map(item => item.whyRight || null),
+                whyWrong: randomized.map(item => item.whyWrong || null),
+                c: randomized.findIndex(item => item.whyRight) // Find the one with whyRight
             };
         });
     } else {
@@ -151,7 +154,7 @@ function loadQuestion() {
             if (e.key === 'Enter') submitIdentification();
         });
     } else {
-        // Multiple choice
+        // Multiple choice with new whyRight/whyWrong structure
         const letters = ['A', 'B', 'C', 'D'];
         q.a.forEach((answer, index) => {
             const btn = document.createElement('button');
@@ -175,7 +178,7 @@ function loadQuestion() {
     startTimer();
 }
 
-// Submit Identification Answer
+// Submit Identification Answer (for sysadmn)
 function submitIdentification() {
     const input = document.getElementById('answer-input');
     const submitBtn = document.querySelector('button[onclick="submitIdentification()"]');
@@ -184,18 +187,29 @@ function submitIdentification() {
     if (input.disabled) return;
     
     const userAnswer = input.value.trim().toLowerCase();
-    const correctAnswer = quizData[currentQuestion].a.toLowerCase();
+    const correctAnswers = quizData[currentQuestion].a; // Can be string or array
     const explanation = quizData[currentQuestion].exp || "This is a commonly used Linux command.";
     
     // Disable input and button
     input.disabled = true;
     if (submitBtn) submitBtn.disabled = true;
     
-    // Check answer
-    const isCorrect = userAnswer === correctAnswer;
+    // Check answer - support multiple acceptable answers
+    let isCorrect = false;
+    let correctAnswerDisplay = '';
+    
+    if (Array.isArray(correctAnswers)) {
+        // Multiple acceptable answers
+        isCorrect = correctAnswers.some(ans => userAnswer === ans.toLowerCase());
+        correctAnswerDisplay = correctAnswers.join(' or ');
+    } else {
+        // Single answer
+        isCorrect = userAnswer === correctAnswers.toLowerCase();
+        correctAnswerDisplay = correctAnswers;
+    }
     
     if (isCorrect) {
-        score += 1; // Changed from 2 to 1
+        score += 1;
         streak++;
         input.classList.add('correct');
         
@@ -204,7 +218,7 @@ function submitIdentification() {
                 <div class="text-2xl">✅</div>
                 <div>
                     <div class="font-bold text-green-400 mb-1">Correct! +1 point</div>
-                    <div class="text-slate-300">The answer is: <span class="font-mono font-bold">${correctAnswer}</span></div>
+                    <div class="text-slate-300">The answer is: <span class="font-mono font-bold">${correctAnswerDisplay}</span></div>
                     <div class="text-slate-400 text-sm mt-2">💡 ${explanation}</div>
                 </div>
             </div>
@@ -219,7 +233,7 @@ function submitIdentification() {
                 <div>
                     <div class="font-bold text-red-400 mb-1">Incorrect</div>
                     <div class="text-slate-300">Your answer: <span class="font-mono font-bold">${userAnswer || '(empty)'}</span></div>
-                    <div class="text-slate-300">Correct answer: <span class="font-mono font-bold text-green-400">${correctAnswer}</span></div>
+                    <div class="text-slate-300">Correct answer: <span class="font-mono font-bold text-green-400">${correctAnswerDisplay}</span></div>
                     <div class="text-slate-400 text-sm mt-2">💡 ${explanation}</div>
                 </div>
             </div>
@@ -232,7 +246,7 @@ function submitIdentification() {
     userAnswers.push({
         question: quizData[currentQuestion].q,
         userAnswer: userAnswer,
-        correctAnswer: correctAnswer,
+        correctAnswer: correctAnswerDisplay,
         isCorrect: isCorrect,
         explanation: explanation
     });
@@ -248,7 +262,7 @@ function submitIdentification() {
     document.getElementById('streak').textContent = streak;
 }
 
-// Handle Multiple Choice Answer
+// Handle Multiple Choice Answer with whyRight/whyWrong
 function handleAnswer(selectedIndex) {
     const q = quizData[currentQuestion];
     const correctIndex = q.c;
@@ -261,7 +275,7 @@ function handleAnswer(selectedIndex) {
     const isCorrect = selectedIndex === correctIndex;
     
     if (isCorrect) {
-        score += 1; // Changed from 2 to 1
+        score += 1;
         streak++;
         buttons[selectedIndex].classList.add('correct');
     } else {
@@ -270,40 +284,41 @@ function handleAnswer(selectedIndex) {
         buttons[correctIndex].classList.add('correct');
     }
     
-    // Show explanations
+    // Show explanation for correct answer with whyRight
     buttons[correctIndex].querySelector('.explanation-box').innerHTML = `
         <div class="flex items-start gap-3">
             <div class="text-2xl">✅</div>
             <div class="text-white">
                 <div class="font-bold text-green-300 mb-1">Correct Answer ${isCorrect ? '(+1 point)' : ''}</div>
-                <div>${q.a[correctIndex]}</div>
-                <div class="text-slate-300 text-sm mt-2">💡 ${q.exp || "Review this topic for better understanding."}</div>
+                <div class="text-sm text-slate-300 mt-1">${q.whyRight[correctIndex]}</div>
             </div>
         </div>
     `;
     buttons[correctIndex].querySelector('.explanation-box').classList.add('show');
     
+    // Show explanation for selected wrong answer
     if (!isCorrect) {
         buttons[selectedIndex].querySelector('.explanation-box').innerHTML = `
             <div class="flex items-start gap-3">
                 <div class="text-2xl">❌</div>
                 <div class="text-white">
                     <div class="font-bold text-red-300 mb-1">Your Answer</div>
-                    <div>${q.a[selectedIndex]}</div>
+                    <div class="text-sm text-slate-300 mt-1">${q.whyWrong[selectedIndex]}</div>
                 </div>
             </div>
         `;
         buttons[selectedIndex].querySelector('.explanation-box').classList.add('show');
     }
     
-    // Store answer
+    // Store answer with full explanations
     userAnswers.push({
         question: q.q,
         options: q.a,
+        whyRight: q.whyRight,
+        whyWrong: q.whyWrong,
         userAnswer: selectedIndex,
         correctAnswer: correctIndex,
-        isCorrect: isCorrect,
-        explanation: q.exp || "Review this topic for better understanding."
+        isCorrect: isCorrect
     });
     
     // Stop timer
@@ -460,7 +475,7 @@ function renderReview(filter) {
                 </div>
             `;
         } else {
-            // Multiple choice review
+            // Multiple choice review with whyRight/whyWrong
             const letters = ['A', 'B', 'C', 'D'];
             reviewItem.innerHTML = `
                 <div class="flex items-start gap-4 mb-4">
@@ -472,25 +487,32 @@ function renderReview(filter) {
                         <div class="space-y-2">
                             ${answer.options.map((option, idx) => {
                                 let optionClass = 'review-option';
+                                let explanation = '';
+                                
                                 if (idx === answer.correctAnswer) {
                                     optionClass += ' correct-option';
+                                    explanation = `<div class="text-sm text-slate-300 mt-2">✅ ${answer.whyRight[idx]}</div>`;
                                 } else if (idx === answer.userAnswer && !answer.isCorrect) {
                                     optionClass += ' wrong-option';
+                                    explanation = `<div class="text-sm text-slate-300 mt-2">❌ ${answer.whyWrong[idx]}</div>`;
+                                } else if (answer.whyWrong[idx]) {
+                                    explanation = `<div class="text-sm text-slate-400 mt-2 opacity-75">❌ ${answer.whyWrong[idx]}</div>`;
                                 }
+                                
                                 return `
                                     <div class="${optionClass}">
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex items-start gap-3">
                                             <div class="font-bold text-white">${letters[idx]}</div>
-                                            <div class="flex-1 text-white">${option}</div>
+                                            <div class="flex-1">
+                                                <div class="text-white">${option}</div>
+                                                ${explanation}
+                                            </div>
                                             ${idx === answer.correctAnswer ? '<div class="text-green-300 font-bold">✓ Correct</div>' : ''}
                                             ${idx === answer.userAnswer && !answer.isCorrect ? '<div class="text-red-300 font-bold">✗ Your Answer</div>' : ''}
                                         </div>
                                     </div>
                                 `;
                             }).join('')}
-                        </div>
-                        <div class="bg-slate-700 rounded-lg p-3 mt-3">
-                            <div class="text-sm text-slate-300">💡 <strong>Explanation:</strong> ${answer.explanation}</div>
                         </div>
                     </div>
                 </div>
