@@ -13,7 +13,8 @@ let userAnswers = [];
 const quizDataBank = {
     infosec: infosecQuestions,
     intprog: intprogQuestions,
-    sysadmn: sysadmnQuestions
+    sysadmn: sysadmnQuestions,
+    freeel3: freeel3Questions
 };
 
 // Utility Functions
