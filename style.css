@@ -94,12 +94,15 @@ body {
 .option-btn {
     background: #1e293b;
     border: 2px solid #334155;
-    padding: 16px;
+    padding: 14px 16px;
     border-radius: 10px;
     text-align: left;
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
+    /* FIX: Prevent text overflow on mobile */
+    overflow: hidden;
+    word-break: break-word;
 }
 
 .option-btn:hover {
@@ -110,6 +113,7 @@ body {
 
 .option-btn:disabled {
     cursor: not-allowed;
+    transform: none;
 }
 
 .option-btn.correct {
@@ -125,8 +129,9 @@ body {
 }
 
 .option-letter {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px; /* FIX: Prevent shrinking */
     background: #ff6b35;
     color: white;
     border-radius: 50%;
@@ -135,7 +140,7 @@ body {
     justify-content: center;
     font-weight: 700;
     flex-shrink: 0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .option-btn:hover .option-letter {
@@ -145,6 +150,15 @@ body {
 .option-btn.correct .option-letter,
 .option-btn.wrong .option-letter {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* Option text - FIX: proper wrapping */
+.option-btn .flex-1 {
+    min-width: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    line-height: 1.4;
 }
 
 /* Input Field - Dark Mode */
@@ -183,14 +197,22 @@ body {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.4s ease-out;
-    background: #0f172a;
+    background: rgba(0,0,0,0.2);
     border-radius: 8px;
 }
 
 .explanation-box.show {
-    max-height: 400px;
+    max-height: 500px; /* FIX: Increased to fit longer explanations */
     padding: 12px;
     margin-top: 10px;
+}
+
+/* FIX: Ensure explanation text wraps properly */
+.explanation-box .flex-1,
+.explanation-box div {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
 }
 
 /* Timer Pulse */
@@ -238,6 +260,9 @@ body {
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+    /* FIX: Prevent overflow */
+    overflow: hidden;
+    word-break: break-word;
 }
 
 .review-item:hover {
@@ -259,6 +284,9 @@ body {
     border-radius: 8px;
     margin-bottom: 10px;
     border: 2px solid #334155;
+    /* FIX: text wrapping */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .review-option.correct-option {
@@ -271,6 +299,11 @@ body {
     border-color: #ef4444;
 }
 
+/* FIX: Mobile review layout */
+.review-item .flex-1 {
+    min-width: 0;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 640px) {
     .category-card {
@@ -278,13 +311,31 @@ body {
     }
     
     .option-btn {
-        padding: 14px;
+        padding: 12px 14px;
     }
     
     .option-letter {
-        width: 32px;
-        height: 32px;
-        font-size: 13px;
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        font-size: 12px;
+    }
+
+    /* FIX: Smaller font on mobile for option text */
+    .option-btn .flex-1 {
+        font-size: 14px;
+    }
+
+    /* FIX: Review badges stack on very small screens */
+    .review-option .flex {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    /* FIX: Question text smaller on mobile */
+    #question-text {
+        font-size: 1rem;
+        line-height: 1.4;
     }
 }
 

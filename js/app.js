@@ -8,6 +8,7 @@ let streak = 0;
 let timer = 30;
 let timerInterval;
 let userAnswers = [];
+let questionAnswered = false; // BUG FIX: track if question was already answered
 
 // Question bank combining all subjects
 const quizDataBank = {
@@ -72,10 +73,9 @@ function startQuiz(category) {
     // Shuffle and take 50 questions
     const shuffledQuestions = shuffle(allQuestions).slice(0, 50);
     
-    // For multiple choice (InfoSec & IntProg), shuffle answers with new whyRight/whyWrong structure
+    // For multiple choice (InfoSec & IntProg & freeel3), shuffle answers with new whyRight/whyWrong structure
     if (category !== 'sysadmn') {
         quizData = shuffledQuestions.map(q => {
-            // Shuffle answer objects (each has option, and either whyRight or whyWrong)
             const shuffledAnswers = q.a.map((ansObj, idx) => ({
                 ...ansObj,
                 originalIndex: idx
@@ -87,7 +87,7 @@ function startQuiz(category) {
                 a: randomized.map(item => item.option),
                 whyRight: randomized.map(item => item.whyRight || null),
                 whyWrong: randomized.map(item => item.whyWrong || null),
-                c: randomized.findIndex(item => item.whyRight) // Find the one with whyRight
+                c: randomized.findIndex(item => item.whyRight)
             };
         });
     } else {
@@ -108,6 +108,9 @@ function loadQuestion() {
         return;
     }
     
+    // BUG FIX: Reset answered flag for each new question
+    questionAnswered = false;
+    
     const q = quizData[currentQuestion];
     
     // Update UI
@@ -116,6 +119,10 @@ function loadQuestion() {
     document.getElementById('question-text').textContent = q.q;
     document.getElementById('current-score').textContent = score;
     document.getElementById('streak').textContent = streak;
+    
+    // Reset timer pulse
+    const timerEl = document.getElementById('timer');
+    timerEl.parentElement.parentElement.classList.remove('timer-pulse');
     
     // Progress bar
     const progress = ((currentQuestion) / quizData.length) * 100;
@@ -138,6 +145,7 @@ function loadQuestion() {
                     autocomplete="off"
                 >
                 <button 
+                    id="submit-btn"
                     onclick="submitIdentification()" 
                     class="mt-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-8 py-3 rounded-lg font-bold transition-all w-full"
                 >
@@ -147,24 +155,22 @@ function loadQuestion() {
             </div>
         `;
         
-        // Focus on input
         setTimeout(() => document.getElementById('answer-input').focus(), 100);
         
-        // Enter key to submit
         document.getElementById('answer-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') submitIdentification();
         });
     } else {
-        // Multiple choice with new whyRight/whyWrong structure
+        // Multiple choice
         const letters = ['A', 'B', 'C', 'D'];
         q.a.forEach((answer, index) => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
             btn.onclick = () => handleAnswer(index);
             btn.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="option-letter">${letters[index]}</div>
-                    <div class="flex-1 text-lg font-medium text-white">${answer}</div>
+                <div class="flex items-start gap-3">
+                    <div class="option-letter flex-shrink-0">${letters[index]}</div>
+                    <div class="flex-1 text-base font-medium text-white leading-snug break-words min-w-0">${answer}</div>
                 </div>
                 <div class="explanation-box" id="exp-${index}"></div>
             `;
@@ -181,30 +187,32 @@ function loadQuestion() {
 
 // Submit Identification Answer (for sysadmn)
 function submitIdentification() {
-    const input = document.getElementById('answer-input');
-    const submitBtn = document.querySelector('button[onclick="submitIdentification()"]');
+    // BUG FIX: Prevent multiple submissions
+    if (questionAnswered) return;
     
-    // Prevent multiple submissions
-    if (input.disabled) return;
+    const input = document.getElementById('answer-input');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    if (!input || input.disabled) return;
+    
+    questionAnswered = true; // Mark as answered
     
     const userAnswer = input.value.trim().toLowerCase();
-    const correctAnswers = quizData[currentQuestion].a; // Can be string or array
+    const correctAnswers = quizData[currentQuestion].a;
     const explanation = quizData[currentQuestion].exp || "This is a commonly used Linux command.";
     
     // Disable input and button
     input.disabled = true;
     if (submitBtn) submitBtn.disabled = true;
     
-    // Check answer - support multiple acceptable answers
+    // Check answer
     let isCorrect = false;
     let correctAnswerDisplay = '';
     
     if (Array.isArray(correctAnswers)) {
-        // Multiple acceptable answers
         isCorrect = correctAnswers.some(ans => userAnswer === ans.toLowerCase());
         correctAnswerDisplay = correctAnswers.join(' or ');
     } else {
-        // Single answer
         isCorrect = userAnswer === correctAnswers.toLowerCase();
         correctAnswerDisplay = correctAnswers;
     }
@@ -216,10 +224,10 @@ function submitIdentification() {
         
         document.getElementById('identification-explanation').innerHTML = `
             <div class="flex items-start gap-3">
-                <div class="text-2xl">✅</div>
+                <div class="text-2xl flex-shrink-0">✅</div>
                 <div>
                     <div class="font-bold text-green-400 mb-1">Correct! +1 point</div>
-                    <div class="text-slate-300">The answer is: <span class="font-mono font-bold">${correctAnswerDisplay}</span></div>
+                    <div class="text-slate-300 break-words">The answer is: <span class="font-mono font-bold">${correctAnswerDisplay}</span></div>
                     <div class="text-slate-400 text-sm mt-2">💡 ${explanation}</div>
                 </div>
             </div>
@@ -230,12 +238,12 @@ function submitIdentification() {
         
         document.getElementById('identification-explanation').innerHTML = `
             <div class="flex items-start gap-3">
-                <div class="text-2xl">❌</div>
+                <div class="text-2xl flex-shrink-0">❌</div>
                 <div>
                     <div class="font-bold text-red-400 mb-1">Incorrect</div>
-                    <div class="text-slate-300">Your answer: <span class="font-mono font-bold">${userAnswer || '(empty)'}</span></div>
-                    <div class="text-slate-300">Correct answer: <span class="font-mono font-bold text-green-400">${correctAnswerDisplay}</span></div>
-                    <div class="text-slate-400 text-sm mt-2">💡 ${explanation}</div>
+                    <div class="text-slate-300 break-words">Your answer: <span class="font-mono font-bold">${userAnswer || '(empty)'}</span></div>
+                    <div class="text-slate-300 break-words">Correct answer: <span class="font-mono font-bold text-green-400">${correctAnswerDisplay}</span></div>
+                    <div class="text-slate-400 text-sm mt-2 break-words">💡 ${explanation}</div>
                 </div>
             </div>
         `;
@@ -263,16 +271,57 @@ function submitIdentification() {
     document.getElementById('streak').textContent = streak;
 }
 
-// Handle Multiple Choice Answer with whyRight/whyWrong
+// Handle Multiple Choice Answer
 function handleAnswer(selectedIndex) {
+    // BUG FIX: Prevent multiple/double answers
+    if (questionAnswered) return;
+    
     const q = quizData[currentQuestion];
     const correctIndex = q.c;
     const buttons = document.querySelectorAll('.option-btn');
     
+    // BUG FIX: Handle timer-expired case (selectedIndex = -1 = no answer given)
+    if (selectedIndex === -1) {
+        // Time's up — mark as wrong, show correct answer, store unanswered
+        questionAnswered = true;
+        streak = 0;
+        
+        buttons.forEach(btn => btn.disabled = true);
+        buttons[correctIndex].classList.add('correct');
+        
+        buttons[correctIndex].querySelector('.explanation-box').innerHTML = `
+            <div class="flex items-start gap-3">
+                <div class="text-2xl flex-shrink-0">⏰</div>
+                <div class="text-white min-w-0">
+                    <div class="font-bold text-yellow-300 mb-1">Time's Up!</div>
+                    <div class="text-sm text-slate-300 mt-1 break-words">${q.whyRight[correctIndex]}</div>
+                </div>
+            </div>
+        `;
+        buttons[correctIndex].querySelector('.explanation-box').classList.add('show');
+        
+        userAnswers.push({
+            question: q.q,
+            options: q.a,
+            whyRight: q.whyRight,
+            whyWrong: q.whyWrong,
+            userAnswer: -1,
+            correctAnswer: correctIndex,
+            isCorrect: false
+        });
+        
+        clearInterval(timerInterval);
+        document.getElementById('next-button-container').classList.remove('hidden');
+        document.getElementById('current-score').textContent = score;
+        document.getElementById('streak').textContent = streak;
+        return;
+    }
+    
+    questionAnswered = true;
+    
     // Disable all buttons
     buttons.forEach(btn => btn.disabled = true);
     
-    // Check if correct
     const isCorrect = selectedIndex === correctIndex;
     
     if (isCorrect) {
@@ -285,13 +334,13 @@ function handleAnswer(selectedIndex) {
         buttons[correctIndex].classList.add('correct');
     }
     
-    // Show explanation for correct answer with whyRight
+    // Show explanation for correct answer
     buttons[correctIndex].querySelector('.explanation-box').innerHTML = `
         <div class="flex items-start gap-3">
-            <div class="text-2xl">✅</div>
-            <div class="text-white">
+            <div class="text-2xl flex-shrink-0">✅</div>
+            <div class="text-white min-w-0">
                 <div class="font-bold text-green-300 mb-1">Correct Answer ${isCorrect ? '(+1 point)' : ''}</div>
-                <div class="text-sm text-slate-300 mt-1">${q.whyRight[correctIndex]}</div>
+                <div class="text-sm text-slate-300 mt-1 break-words">${q.whyRight[correctIndex]}</div>
             </div>
         </div>
     `;
@@ -301,17 +350,17 @@ function handleAnswer(selectedIndex) {
     if (!isCorrect) {
         buttons[selectedIndex].querySelector('.explanation-box').innerHTML = `
             <div class="flex items-start gap-3">
-                <div class="text-2xl">❌</div>
-                <div class="text-white">
+                <div class="text-2xl flex-shrink-0">❌</div>
+                <div class="text-white min-w-0">
                     <div class="font-bold text-red-300 mb-1">Your Answer</div>
-                    <div class="text-sm text-slate-300 mt-1">${q.whyWrong[selectedIndex]}</div>
+                    <div class="text-sm text-slate-300 mt-1 break-words">${q.whyWrong[selectedIndex]}</div>
                 </div>
             </div>
         `;
         buttons[selectedIndex].querySelector('.explanation-box').classList.add('show');
     }
     
-    // Store answer with full explanations
+    // Store answer
     userAnswers.push({
         question: q.q,
         options: q.a,
@@ -322,19 +371,15 @@ function handleAnswer(selectedIndex) {
         isCorrect: isCorrect
     });
     
-    // Stop timer
     clearInterval(timerInterval);
-    
-    // Show next button
     document.getElementById('next-button-container').classList.remove('hidden');
-    
-    // Update displays
     document.getElementById('current-score').textContent = score;
     document.getElementById('streak').textContent = streak;
 }
 
 // Timer
 function startTimer() {
+    clearInterval(timerInterval); // BUG FIX: Always clear before starting new
     timer = 30;
     updateTimerDisplay();
     
@@ -358,17 +403,13 @@ function updateTimerDisplay() {
 }
 
 function autoSubmit() {
+    // BUG FIX: Check questionAnswered guard before auto-submitting
+    if (questionAnswered) return;
+    
     if (currentCategory === 'sysadmn') {
-        const input = document.getElementById('answer-input');
-        if (!input.disabled) {
-            submitIdentification();
-        }
+        submitIdentification();
     } else {
-        // Auto-select as wrong for multiple choice
-        const buttons = document.querySelectorAll('.option-btn');
-        if (!buttons[0].disabled) {
-            handleAnswer(-1); // Invalid index = wrong
-        }
+        handleAnswer(-1); // -1 = time expired, no answer
     }
 }
 
@@ -387,7 +428,6 @@ function showResults() {
     const wrongAnswers = totalQuestions - correctAnswers;
     const percentage = Math.round((correctAnswers / totalQuestions) * 100);
     
-    // Determine rank
     let rank, rankBadge;
     if (percentage >= 90) {
         rank = 'Elite Scholar';
@@ -403,7 +443,6 @@ function showResults() {
         rankBadge = '📚';
     }
     
-    // Update results screen
     document.getElementById('final-score').textContent = score + '/' + totalQuestions;
     document.getElementById('rank-badge').textContent = rankBadge;
     document.getElementById('rank-text').textContent = rank;
@@ -421,10 +460,8 @@ function showReviewCenter() {
 }
 
 function filterReview(filter) {
-    // Update active button
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('filter-' + filter).classList.add('active');
-    
     renderReview(filter);
 }
 
@@ -449,71 +486,78 @@ function renderReview(filter) {
         reviewItem.className = `review-item ${answer.isCorrect ? 'correct-answer' : 'wrong-answer'}`;
         
         if (currentCategory === 'sysadmn') {
-            // Identification review
             reviewItem.innerHTML = `
-                <div class="flex items-start gap-4 mb-4">
-                    <div class="w-12 h-12 rounded-full ${answer.isCorrect ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center text-white font-bold flex-shrink-0">
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full flex-shrink-0 ${answer.isCorrect ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center text-white font-bold">
                         ${answer.isCorrect ? '✓' : '✗'}
                     </div>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-bold text-white mb-2">${answer.question}</h3>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-bold text-white mb-2 break-words">${answer.question}</h3>
                         <div class="space-y-2">
                             <div class="review-option ${answer.isCorrect ? 'correct-option' : 'wrong-option'}">
                                 <div class="font-semibold text-sm ${answer.isCorrect ? 'text-green-300' : 'text-red-300'}">Your Answer:</div>
-                                <div class="font-mono text-lg text-white">${answer.userAnswer || '(no answer)'}</div>
+                                <div class="font-mono text-base text-white break-words">${answer.userAnswer || '(no answer / time expired)'}</div>
                             </div>
                             ${!answer.isCorrect ? `
                                 <div class="review-option correct-option">
                                     <div class="font-semibold text-sm text-green-300">Correct Answer:</div>
-                                    <div class="font-mono text-lg text-white">${answer.correctAnswer}</div>
+                                    <div class="font-mono text-base text-white break-words">${answer.correctAnswer}</div>
                                 </div>
                             ` : ''}
                             <div class="bg-slate-700 rounded-lg p-3 mt-2">
-                                <div class="text-sm text-slate-300">💡 <strong>Explanation:</strong> ${answer.explanation}</div>
+                                <div class="text-sm text-slate-300 break-words">💡 <strong>Explanation:</strong> ${answer.explanation}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             `;
         } else {
-            // Multiple choice review with whyRight/whyWrong
             const letters = ['A', 'B', 'C', 'D'];
             reviewItem.innerHTML = `
-                <div class="flex items-start gap-4 mb-4">
-                    <div class="w-12 h-12 rounded-full ${answer.isCorrect ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center text-white font-bold flex-shrink-0">
+                <div class="flex items-start gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full flex-shrink-0 ${answer.isCorrect ? 'bg-green-500' : 'bg-red-500'} flex items-center justify-center text-white font-bold">
                         ${answer.isCorrect ? '✓' : '✗'}
                     </div>
-                    <div class="flex-1">
-                        <h3 class="text-xl font-bold text-white mb-4">${answer.question}</h3>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-bold text-white mb-3 break-words">${answer.question}</h3>
                         <div class="space-y-2">
                             ${answer.options.map((option, idx) => {
                                 let optionClass = 'review-option';
                                 let explanation = '';
+                                let badge = '';
                                 
                                 if (idx === answer.correctAnswer) {
                                     optionClass += ' correct-option';
-                                    explanation = `<div class="text-sm text-slate-300 mt-2">✅ ${answer.whyRight[idx]}</div>`;
+                                    explanation = `<div class="text-sm text-slate-300 mt-2 break-words">✅ ${answer.whyRight[idx]}</div>`;
+                                    badge = '<div class="text-green-300 font-bold text-sm flex-shrink-0">✓ Correct</div>';
                                 } else if (idx === answer.userAnswer && !answer.isCorrect) {
                                     optionClass += ' wrong-option';
-                                    explanation = `<div class="text-sm text-slate-300 mt-2">❌ ${answer.whyWrong[idx]}</div>`;
-                                } else if (answer.whyWrong[idx]) {
-                                    explanation = `<div class="text-sm text-slate-400 mt-2 opacity-75">❌ ${answer.whyWrong[idx]}</div>`;
+                                    explanation = `<div class="text-sm text-slate-300 mt-2 break-words">❌ ${answer.whyWrong[idx]}</div>`;
+                                    badge = '<div class="text-red-300 font-bold text-sm flex-shrink-0">✗ Your Answer</div>';
+                                } else if (answer.whyWrong && answer.whyWrong[idx]) {
+                                    explanation = `<div class="text-sm text-slate-400 mt-2 break-words opacity-75">❌ ${answer.whyWrong[idx]}</div>`;
                                 }
                                 
                                 return `
                                     <div class="${optionClass}">
-                                        <div class="flex items-start gap-3">
-                                            <div class="font-bold text-white">${letters[idx]}</div>
-                                            <div class="flex-1">
-                                                <div class="text-white">${option}</div>
-                                                ${explanation}
+                                        <div class="flex items-start justify-between gap-2">
+                                            <div class="flex items-start gap-2 min-w-0 flex-1">
+                                                <div class="font-bold text-white flex-shrink-0">${letters[idx]}</div>
+                                                <div class="min-w-0">
+                                                    <div class="text-white break-words">${option}</div>
+                                                    ${explanation}
+                                                </div>
                                             </div>
-                                            ${idx === answer.correctAnswer ? '<div class="text-green-300 font-bold">✓ Correct</div>' : ''}
-                                            ${idx === answer.userAnswer && !answer.isCorrect ? '<div class="text-red-300 font-bold">✗ Your Answer</div>' : ''}
+                                            ${badge}
                                         </div>
                                     </div>
                                 `;
                             }).join('')}
+                            ${answer.userAnswer === -1 ? `
+                                <div class="bg-yellow-900 border border-yellow-600 rounded-lg p-3 mt-2">
+                                    <div class="text-yellow-300 text-sm font-semibold">⏰ Time expired — no answer selected</div>
+                                </div>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
