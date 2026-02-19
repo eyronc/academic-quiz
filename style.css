@@ -62,17 +62,11 @@ body {
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(15px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Category Cards - Dark Mode */
+/* Category Cards */
 .category-card {
     background: #1e293b;
     padding: 24px;
@@ -90,7 +84,7 @@ body {
     background: #27374d;
 }
 
-/* Option Buttons - Dark Mode */
+/* Option Buttons */
 .option-btn {
     background: #1e293b;
     border: 2px solid #334155;
@@ -100,7 +94,6 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     width: 100%;
-    /* FIX: Prevent text overflow on mobile */
     overflow: hidden;
     word-break: break-word;
 }
@@ -131,7 +124,7 @@ body {
 .option-letter {
     width: 32px;
     height: 32px;
-    min-width: 32px; /* FIX: Prevent shrinking */
+    min-width: 32px;
     background: #ff6b35;
     color: white;
     border-radius: 50%;
@@ -152,7 +145,6 @@ body {
     background: rgba(255, 255, 255, 0.3);
 }
 
-/* Option text - FIX: proper wrapping */
 .option-btn .flex-1 {
     min-width: 0;
     word-wrap: break-word;
@@ -161,7 +153,7 @@ body {
     line-height: 1.4;
 }
 
-/* Input Field - Dark Mode */
+/* Input Field */
 .answer-input {
     width: 100%;
     padding: 14px;
@@ -192,7 +184,19 @@ body {
     color: #fecaca;
 }
 
-/* Explanation Box - Dark Mode */
+/* Input error state */
+.input-error {
+    border-color: #ef4444 !important;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25%       { transform: translateX(-6px); }
+    75%       { transform: translateX(6px); }
+}
+
+/* Explanation Box */
 .explanation-box {
     max-height: 0;
     overflow: hidden;
@@ -202,12 +206,11 @@ body {
 }
 
 .explanation-box.show {
-    max-height: 500px; /* FIX: Increased to fit longer explanations */
+    max-height: 500px;
     padding: 12px;
     margin-top: 10px;
 }
 
-/* FIX: Ensure explanation text wraps properly */
 .explanation-box .flex-1,
 .explanation-box div {
     word-wrap: break-word;
@@ -215,21 +218,17 @@ body {
     min-width: 0;
 }
 
-/* Timer Pulse */
-.timer-pulse {
+/* Timer Pulse — applied to .timer-card by QuizTimer */
+.timer-card.timer-pulse {
     animation: pulse 1s ease-in-out infinite;
 }
 
 @keyframes pulse {
-    0%, 100% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.05); }
 }
 
-/* Filter Buttons - Dark Mode */
+/* Filter Buttons */
 .filter-btn {
     background: #1e293b;
     color: #94a3b8;
@@ -253,14 +252,13 @@ body {
     border-color: #ff6b35;
 }
 
-/* Review Items - Dark Mode */
+/* Review Items */
 .review-item {
     background: #1e293b;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
-    /* FIX: Prevent overflow */
     overflow: hidden;
     word-break: break-word;
 }
@@ -270,13 +268,8 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.review-item.correct-answer {
-    border-left: 4px solid #10b981;
-}
-
-.review-item.wrong-answer {
-    border-left: 4px solid #ef4444;
-}
+.review-item.correct-answer { border-left: 4px solid #10b981; }
+.review-item.wrong-answer   { border-left: 4px solid #ef4444; }
 
 .review-option {
     background: #0f172a;
@@ -284,7 +277,6 @@ body {
     border-radius: 8px;
     margin-bottom: 10px;
     border: 2px solid #334155;
-    /* FIX: text wrapping */
     word-wrap: break-word;
     overflow-wrap: break-word;
 }
@@ -299,21 +291,13 @@ body {
     border-color: #ef4444;
 }
 
-/* FIX: Mobile review layout */
-.review-item .flex-1 {
-    min-width: 0;
-}
+.review-item .flex-1 { min-width: 0; }
 
-/* Mobile Responsiveness */
+/* Mobile */
 @media (max-width: 640px) {
-    .category-card {
-        padding: 20px;
-    }
-    
-    .option-btn {
-        padding: 12px 14px;
-    }
-    
+    .category-card  { padding: 20px; }
+    .option-btn     { padding: 12px 14px; }
+
     .option-letter {
         width: 28px;
         height: 28px;
@@ -321,34 +305,12 @@ body {
         font-size: 12px;
     }
 
-    /* FIX: Smaller font on mobile for option text */
-    .option-btn .flex-1 {
-        font-size: 14px;
-    }
-
-    /* FIX: Review badges stack on very small screens */
-    .review-option .flex {
-        flex-wrap: wrap;
-        gap: 4px;
-    }
-
-    /* FIX: Question text smaller on mobile */
-    #question-text {
-        font-size: 1rem;
-        line-height: 1.4;
-    }
+    .option-btn .flex-1  { font-size: 14px; }
+    .review-option .flex { flex-wrap: wrap; gap: 4px; }
+    #question-text       { font-size: 1rem; line-height: 1.4; }
 }
 
-/* Scrollbar - Dark */
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: #0f172a;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #ff6b35;
-    border-radius: 4px;
-}
+/* Scrollbar */
+::-webkit-scrollbar       { width: 8px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #ff6b35; border-radius: 4px; }
