@@ -121,6 +121,8 @@ const QuizEngine = (() => {
         return;
       }
 
+      QuizState.resetAnswered();
+
       const q = QuizState.currentQ;
       QuizRenderer.renderQuestion(q, QuizState.currentQuestion, QuizState.totalQuestions);
 

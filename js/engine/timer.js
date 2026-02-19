@@ -2,18 +2,24 @@ const QuizTimer = (() => {
   let _intervalId = null;
   let _remaining  = 0;
 
+  function _stop() {
+    if (_intervalId !== null) {
+      clearInterval(_intervalId);
+      _intervalId = null;
+    }
+  }
+
   function _onTick(onExpire) {
     _remaining--;
     _updateDisplay();
 
     if (_remaining <= CONFIG.TIMER_WARNING_THRESHOLD) {
-      document.getElementById('timer')
-        .closest('.timer-card')
-        .classList.add('timer-pulse');
+      const card = document.getElementById('timer')?.closest('.timer-card');
+      if (card) card.classList.add('timer-pulse');
     }
 
     if (_remaining <= 0) {
-      stop();
+      _stop();
       onExpire();
     }
   }
@@ -25,7 +31,7 @@ const QuizTimer = (() => {
 
   return {
     start(onExpire) {
-      stop();
+      _stop(); 
       _remaining = CONFIG.TIMER_SECONDS;
       _updateDisplay();
 
@@ -35,12 +41,7 @@ const QuizTimer = (() => {
       _intervalId = setInterval(() => _onTick(onExpire), 1000);
     },
 
-    stop() {
-      if (_intervalId !== null) {
-        clearInterval(_intervalId);
-        _intervalId = null;
-      }
-    },
+    stop() { _stop(); },
 
     get remaining() { return _remaining; },
   };
